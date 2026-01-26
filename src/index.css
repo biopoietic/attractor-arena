@@ -1,0 +1,121 @@
+@import 'tailwindcss';
+
+@theme {
+	--color-clinical-red: #f43f5e;
+	--color-clinical-bg: #000000;
+	--color-clinical-surface: #050505;
+	--color-clinical-border: #141414;
+	--color-clinical-text: #ffffff;
+	--color-clinical-muted: #444444;
+}
+
+@layer base {
+	body {
+		font-family: 'Inter', sans-serif;
+		background-color: var(--color-clinical-bg);
+		color: var(--color-clinical-text);
+		letter-spacing: -0.01em;
+		-webkit-font-smoothing: antialiased;
+		overflow: hidden;
+	}
+
+	::-webkit-scrollbar {
+		width: 3px;
+	}
+	::-webkit-scrollbar-track {
+		background: transparent;
+	}
+	::-webkit-scrollbar-thumb {
+		background: var(--color-clinical-border);
+	}
+	::-webkit-scrollbar-thumb:hover {
+		background: var(--color-clinical-red);
+	}
+}
+
+@layer components {
+	.mono {
+		font-family: 'Space Mono', monospace;
+	}
+
+	.high-contrast-border {
+		border: 1px solid var(--color-clinical-border);
+	}
+
+	.scanline {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(to bottom, transparent, rgba(244, 63, 94, 0.02), transparent);
+		animation: scan 6s linear infinite;
+		pointer-events: none;
+		z-index: 20;
+	}
+
+	.glitch-hover:hover {
+		animation: glitch-organic 0.2s infinite;
+	}
+
+	.chamber-glow {
+		box-shadow: inset 0 0 100px rgba(244, 63, 94, 0.03);
+	}
+
+	.input-underlay {
+		height: 1px;
+		background: var(--color-clinical-border);
+		transition: all 0.4s ease;
+	}
+
+	.input-group:focus-within .input-underlay {
+		background: var(--color-clinical-red);
+		box-shadow: 0 0 10px var(--color-clinical-red);
+	}
+
+	.stats-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+		gap: 1px;
+		background: var(--color-clinical-border);
+	}
+
+	input,
+	textarea {
+		background: transparent !important;
+		border: none !important;
+		outline: none !important;
+		color: white !important;
+		font-size: 0.875rem !important;
+	}
+}
+
+@keyframes scan {
+	from {
+		transform: translateY(-100%);
+	}
+	to {
+		transform: translateY(100%);
+	}
+}
+
+@keyframes glitch-organic {
+	0% {
+		transform: translate(0);
+	}
+	20% {
+		transform: translate(-1px, 1px);
+	}
+	40% {
+		transform: translate(-1px, -1px);
+	}
+	60% {
+		transform: translate(1px, 1px);
+	}
+	80% {
+		transform: translate(1px, -1px);
+	}
+	100% {
+		transform: translate(0);
+	}
+}
