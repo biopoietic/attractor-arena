@@ -7,7 +7,6 @@
 
 import fs from 'fs'
 import path from 'path'
-import { createHash } from 'crypto'
 import matter from 'gray-matter'
 
 /**
@@ -35,7 +34,7 @@ export function loadCompetitors(competitorsDir) {
 }
 
 /**
- * Load all matches from JSONL file
+ * Load all matches from JSONL file (newline-delimited JSON)
  * @param {string} matchesFile - Path to matches.jsonl
  * @returns {Array} - Array of match objects
  */
@@ -44,7 +43,13 @@ export function loadMatches(matchesFile) {
 		return []
 	}
 
-	const content = fs.readFileSync(matchesFile, 'utf-8')
+	const content = fs.readFileSync(matchesFile, 'utf-8').trim()
+	
+	if (!content) {
+		return []
+	}
+
+	// Parse as JSONL (one JSON object per line)
 	const lines = content.split('\n').filter((line) => line.trim())
 
 	return lines
@@ -52,7 +57,7 @@ export function loadMatches(matchesFile) {
 			try {
 				return JSON.parse(line)
 			} catch {
-				console.warn('Failed to parse match line:', line)
+				console.warn('Failed to parse match line:', line.substring(0, 100) + '...')
 				return null
 			}
 		})
@@ -65,7 +70,6 @@ export function loadMatches(matchesFile) {
  * @param {Object} match - Match object to append
  */
 export function appendMatch(matchesFile, match) {
-	// Ensure directory exists
 	const dir = path.dirname(matchesFile)
 	if (!fs.existsSync(dir)) {
 		fs.mkdirSync(dir, { recursive: true })
@@ -76,44 +80,18 @@ export function appendMatch(matchesFile, match) {
 }
 
 /**
- * Write leaderboard JSON file
- * @param {string} leaderboardFile - Path to output file
- * @param {Object} data - Leaderboard data
- */
-export function writeLeaderboard(leaderboardFile, data) {
-	// Ensure directory exists
-	const dir = path.dirname(leaderboardFile)
-	if (!fs.existsSync(dir)) {
-		fs.mkdirSync(dir, { recursive: true })
-	}
-
-	fs.writeFileSync(leaderboardFile, JSON.stringify(data, null, 2))
-}
-
-/**
- * Save individual match file with full debate transcript
+ * Save individual match file with full evaluation data
  * @param {string} matchesDir - Path to matches directory
  * @param {string} matchId - Unique match identifier
- * @param {Object} matchData - Full match data including rounds
+ * @param {Object} matchData - Full match data including evaluations
  */
 export function saveMatchFile(matchesDir, matchId, matchData) {
-	// Ensure directory exists
 	if (!fs.existsSync(matchesDir)) {
 		fs.mkdirSync(matchesDir, { recursive: true })
 	}
 
 	const filePath = path.join(matchesDir, `${matchId}.json`)
 	fs.writeFileSync(filePath, JSON.stringify(matchData, null, 2))
-}
-
-/**
- * Generate SHA256 hash of transcript
- * @param {string} transcript - Debate transcript text
- * @returns {string} - Hex hash prefixed with "sha256-"
- */
-export function hashTranscript(transcript) {
-	const hash = createHash('sha256').update(transcript).digest('hex')
-	return `sha256-${hash.slice(0, 16)}` // Truncate for readability
 }
 
 /**
@@ -127,7 +105,9 @@ export function hashTranscript(transcript) {
 export function buildLeaderboardData(competitors, ratings, matches, recentMatchCount = 50) {
 	// Build competitor data with ratings
 	const competitorData = competitors.map((c) => {
-		const rating = ratings[c.id] || { mu: 25, sigma: 8.333, matches: 0, wins: 0, losses: 0 }
+		const rating = ratings[c.id] || { mu: 0, sigma: 1.5, matches: 0, wins: 0, losses: 0 }
+		const totalEvaluations = rating.wins + rating.losses
+
 		return {
 			id: c.id,
 			name: c.name,
@@ -139,6 +119,8 @@ export function buildLeaderboardData(competitors, ratings, matches, recentMatchC
 			matches: rating.matches,
 			wins: rating.wins,
 			losses: rating.losses,
+			totalEvaluations,
+			winRate: totalEvaluations > 0 ? Math.round((rating.wins / totalEvaluations) * 100) : 0,
 		}
 	})
 
@@ -155,7 +137,7 @@ export function buildLeaderboardData(competitors, ratings, matches, recentMatchC
 		.slice(-recentMatchCount)
 		.reverse()
 		.map((m) => ({
-			matchId: m.matchId || null,
+			matchId: m.matchId,
 			competitorA: {
 				id: m.competitorA,
 				name: competitorMap[m.competitorA]?.name || m.competitorA,
@@ -166,7 +148,10 @@ export function buildLeaderboardData(competitors, ratings, matches, recentMatchC
 			},
 			winnerId: m.winner,
 			winnerName: competitorMap[m.winner]?.name || m.winner,
-			reasoning: m.reasoning || null,
+			scoreA: m.scoreA,
+			scoreB: m.scoreB,
+			totalEvaluations: m.totalEvaluations,
+			entropy: Math.round(m.entropy * 100) / 100,
 			timestamp: m.timestamp,
 			judgeVersion: m.judgeVersion,
 		}))
@@ -187,7 +172,6 @@ export function buildLeaderboardData(competitors, ratings, matches, recentMatchC
  * @param {Array} matches - All matches
  */
 export function writePublicData(publicDir, competitors, ratings, matches) {
-	// Ensure directory exists
 	if (!fs.existsSync(publicDir)) {
 		fs.mkdirSync(publicDir, { recursive: true })
 	}
@@ -196,26 +180,8 @@ export function writePublicData(publicDir, competitors, ratings, matches) {
 	const leaderboardData = buildLeaderboardData(competitors, ratings, matches)
 	fs.writeFileSync(path.join(publicDir, 'leaderboard.json'), JSON.stringify(leaderboardData, null, 2))
 
-	// Write matches.json (enriched with names)
-	const competitorMap = Object.fromEntries(competitors.map((c) => [c.id, c]))
-	const matchesData = matches.map((m) => ({
-		matchId: m.matchId || null,
-		competitorA: {
-			id: m.competitorA,
-			name: competitorMap[m.competitorA]?.name || m.competitorA,
-		},
-		competitorB: {
-			id: m.competitorB,
-			name: competitorMap[m.competitorB]?.name || m.competitorB,
-		},
-		winnerId: m.winner,
-		winnerName: competitorMap[m.winner]?.name || m.winner,
-		reasoning: m.reasoning || null,
-		timestamp: m.timestamp,
-		judgeVersion: m.judgeVersion,
-		transcriptHash: m.transcriptHash,
-	}))
-	fs.writeFileSync(path.join(publicDir, 'matches.json'), JSON.stringify(matchesData, null, 2))
+	// Note: matches.jsonl is the source of truth (JSONL format for efficient appending)
+	// Frontend uses leaderboard.json (which includes recent matches) and individual match files
 
-	return { matchesData, leaderboardData }
+	return { leaderboardData }
 }

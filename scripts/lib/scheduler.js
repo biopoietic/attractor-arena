@@ -3,13 +3,12 @@
  * Builds a match queue that maximizes information gain
  */
 
-import { getMatchQuality, getConservativeRating, DEFAULTS } from './ratings.js'
+import { getConservativeRating } from './ratings.js'
 
 // Thresholds
 const HIGH_SIGMA_THRESHOLD = 6.0 // Competitors with sigma > this are "uncertain"
 const MIN_HEAD_TO_HEAD = 2 // Minimum h2h matches before pair is "saturated"
 const PLACEMENT_MATCHES = 12 // Max placement matches for new competitors
-const EXPLORATION_RATIO = 0.1 // 10% of budget for exploration
 
 /**
  * Build head-to-head matrix from match history
@@ -232,23 +231,4 @@ export function buildMatchQueue(competitors, ratings, matches, budget) {
 
 	// Shuffle final queue to mix match types
 	return queue.sort(() => Math.random() - 0.5).slice(0, budget)
-}
-
-/**
- * Get match priority score (for sorting)
- * Higher = more important to run
- */
-export function getMatchPriority(idA, idB, ratings, matches) {
-	const rA = ratings[idA]
-	const rB = ratings[idB]
-
-	if (!rA || !rB) return 100 // New competitor = high priority
-
-	// Combine factors:
-	// - Higher sigma = more uncertain = higher priority
-	// - Higher match quality = more informative = higher priority
-	const avgSigma = (rA.sigma + rB.sigma) / 2
-	const quality = getMatchQuality(rA, rB)
-
-	return avgSigma * 2 + quality * 10
 }
