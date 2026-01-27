@@ -44,7 +44,7 @@ export function loadMatches(matchesFile) {
 	}
 
 	const content = fs.readFileSync(matchesFile, 'utf-8').trim()
-	
+
 	if (!content) {
 		return []
 	}
@@ -121,10 +121,9 @@ export function buildLeaderboardData(competitors, ratings, matches, recentMatchC
 			losses: rating.losses,
 			totalEvaluations,
 			winRate: totalEvaluations > 0 ? Math.round((rating.wins / totalEvaluations) * 100) : 0,
+			conservativeRating: Math.round((rating.mu - 3 * rating.sigma + 5) * 10),
 		}
-	})
-
-	// Sort by conservative rating (mu - 3*sigma) descending
+	}) // Sort by conservative rating (mu - 3*sigma) descending
 	competitorData.sort((a, b) => {
 		const conservativeA = a.rating.mu - 3 * a.rating.sigma
 		const conservativeB = b.rating.mu - 3 * b.rating.sigma

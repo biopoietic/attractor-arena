@@ -10,9 +10,9 @@ import { loadCompetitors, loadMatches, appendMatch, writePublicData, saveMatchFi
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const COMPETITORS_DIR = path.join(__dirname, '../competitors')
-const MATCHES_FILE = path.join(__dirname, '../public/matches.jsonl')
-const PUBLIC_DIR = path.join(__dirname, '../public')
-const MATCHES_DIR = path.join(__dirname, '../public/matches')
+const DATA_DIR = path.join(__dirname, '../data')
+const MATCHES_FILE = path.join(__dirname, '../data/matches.jsonl')
+const MATCHES_DIR = path.join(__dirname, '../data/matches')
 
 const DEFAULT_BUDGET = 20
 const DEFAULT_JUDGE_VERSION = 'v2.0-panel'
@@ -248,8 +248,8 @@ async function main() {
 	if (matchQueue.length === 0) {
 		console.log('No matches to run. Tournament complete.')
 		// Still regenerate public data
-		writePublicData(PUBLIC_DIR, competitors, ratings, existingMatches)
-		console.log(`\nPublic data written to ${PUBLIC_DIR}`)
+		writePublicData(DATA_DIR, competitors, ratings, existingMatches)
+		console.log(`\nPublic data written to ${DATA_DIR}`)
 		return
 	}
 
@@ -369,11 +369,11 @@ async function main() {
 
 	const allMatches = loadMatches(MATCHES_FILE)
 	const finalRatings = computeAllRatings(allMatches, competitorIds)
-	const { leaderboardData } = writePublicData(PUBLIC_DIR, competitors, finalRatings, allMatches)
+	const { leaderboardData } = writePublicData(DATA_DIR, competitors, finalRatings, allMatches)
 
 	console.log(`Matches completed: ${matchesCompleted}`)
 	console.log(`Total matches:     ${allMatches.length}`)
-	console.log(`\nPublic data written to ${PUBLIC_DIR}`)
+	console.log(`\nPublic data written to ${DATA_DIR}`)
 	console.log(`  - leaderboard.json`)
 	console.log(`  - matches.jsonl (source of truth)`)
 	console.log(`  - matches/*.json (individual match details)`)
