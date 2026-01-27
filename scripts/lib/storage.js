@@ -1,7 +1,7 @@
 /**
  * Storage utilities for tournament data
  * - Competitors from markdown files
- * - Match results in JSONL format
+ * - Match results as individual JSON files
  * - Leaderboard JSON output
  */
 
@@ -91,6 +91,22 @@ export function writeLeaderboard(leaderboardFile, data) {
 }
 
 /**
+ * Save individual match file with full debate transcript
+ * @param {string} matchesDir - Path to matches directory
+ * @param {string} matchId - Unique match identifier
+ * @param {Object} matchData - Full match data including rounds
+ */
+export function saveMatchFile(matchesDir, matchId, matchData) {
+	// Ensure directory exists
+	if (!fs.existsSync(matchesDir)) {
+		fs.mkdirSync(matchesDir, { recursive: true })
+	}
+
+	const filePath = path.join(matchesDir, `${matchId}.json`)
+	fs.writeFileSync(filePath, JSON.stringify(matchData, null, 2))
+}
+
+/**
  * Generate SHA256 hash of transcript
  * @param {string} transcript - Debate transcript text
  * @returns {string} - Hex hash prefixed with "sha256-"
@@ -139,6 +155,7 @@ export function buildLeaderboardData(competitors, ratings, matches, recentMatchC
 		.slice(-recentMatchCount)
 		.reverse()
 		.map((m) => ({
+			matchId: m.matchId || null,
 			competitorA: {
 				id: m.competitorA,
 				name: competitorMap[m.competitorA]?.name || m.competitorA,
@@ -182,6 +199,7 @@ export function writePublicData(publicDir, competitors, ratings, matches) {
 	// Write matches.json (enriched with names)
 	const competitorMap = Object.fromEntries(competitors.map((c) => [c.id, c]))
 	const matchesData = matches.map((m) => ({
+		matchId: m.matchId || null,
 		competitorA: {
 			id: m.competitorA,
 			name: competitorMap[m.competitorA]?.name || m.competitorA,

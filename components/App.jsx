@@ -1,11 +1,44 @@
 import { useState } from 'react'
-import { History, Activity, Database, Globe, ChevronDown, X, TrendingUp, TrendingDown } from 'lucide-react'
+import { History, Activity, Database, Globe, ChevronDown, X, TrendingUp, TrendingDown, MessageSquare, Loader2 } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, Tooltip } from 'recharts'
 import leaderboardData from '../public/leaderboard.json'
 
 const App = () => {
 	const { competitors, recentMatches, totalMatches, generatedAt } = leaderboardData
 	const [selectedCompetitor, setSelectedCompetitor] = useState(null)
+	const [selectedMatch, setSelectedMatch] = useState(null)
+	const [matchData, setMatchData] = useState(null)
+	const [loadingMatch, setLoadingMatch] = useState(false)
+
+	// Load full match data from individual match file
+	const loadMatchData = async (match) => {
+		if (!match.matchId) {
+			// Legacy match without full data
+			setSelectedMatch(match)
+			setMatchData(null)
+			return
+		}
+
+		setSelectedMatch(match)
+		setLoadingMatch(true)
+		try {
+			const response = await fetch(`/matches/${match.matchId}.json`)
+			if (response.ok) {
+				const data = await response.json()
+				setMatchData(data)
+			} else {
+				setMatchData(null)
+			}
+		} catch {
+			setMatchData(null)
+		}
+		setLoadingMatch(false)
+	}
+
+	const closeMatchPanel = () => {
+		setSelectedMatch(null)
+		setMatchData(null)
+	}
 
 	// Leaderboard data is pre-sorted by conservative rating (mu - 3*sigma)
 	const leaderboard = competitors.slice(0, 15)
@@ -124,7 +157,17 @@ const App = () => {
 															{opponent.name}
 														</button>
 													</div>
-													<span className='mono text-xs text-zinc-700'>{new Date(m.timestamp).toLocaleDateString()}</span>
+													<div className='flex items-center gap-3'>
+														<button
+															onClick={() => {
+																setSelectedCompetitor(null)
+																loadMatchData(m)
+															}}
+															className='mono text-xs text-zinc-700 hover:text-rose-500 transition-colors'>
+															View →
+														</button>
+														<span className='mono text-xs text-zinc-700'>{new Date(m.timestamp).toLocaleDateString()}</span>
+													</div>
 												</div>
 											)
 										})}
@@ -133,6 +176,94 @@ const App = () => {
 									)}
 								</div>
 							</div>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Match Detail Panel */}
+			{selectedMatch && (
+				<div className='fixed inset-0 z-50 flex'>
+					<div className='absolute inset-0 bg-black/80 backdrop-blur-sm' onClick={closeMatchPanel} />
+					<div className='absolute right-0 top-0 bottom-0 w-full max-w-2xl bg-black border-l border-zinc-800 overflow-y-auto'>
+						<div className='p-8'>
+							<div className='flex items-start justify-between mb-8'>
+								<div>
+									<span className='mono text-xs text-zinc-600 uppercase tracking-widest'>Match_Transcript</span>
+									<h2 className='mono text-lg font-bold text-rose-500 mt-1'>
+										{selectedMatch.competitorA.name} vs {selectedMatch.competitorB.name}
+									</h2>
+									<span className='mono text-xs text-zinc-700'>{new Date(selectedMatch.timestamp).toLocaleString()}</span>
+								</div>
+								<button onClick={closeMatchPanel} className='p-2 hover:bg-zinc-900 rounded transition-colors'>
+									<X size={20} className='text-zinc-500' />
+								</button>
+							</div>
+
+							{loadingMatch ? (
+								<div className='flex items-center justify-center py-20'>
+									<Loader2 size={24} className='text-rose-500 animate-spin' />
+								</div>
+							) : matchData ? (
+								<>
+									{/* Full Debate Rounds */}
+									<div className='mb-8'>
+										<div className='flex items-center gap-2 mb-4'>
+											<MessageSquare size={14} className='text-zinc-600' />
+											<span className='mono text-xs text-zinc-600 uppercase tracking-widest'>Debate_Rounds</span>
+										</div>
+										<div className='space-y-6'>
+											{matchData.rounds.map((round, i) => {
+												const isA = round.speaker === 'competitorA'
+												return (
+													<div key={i} className={`border-l-2 pl-4 ${isA ? 'border-rose-500/50' : 'border-zinc-700'}`}>
+														<div className='flex items-center gap-2 mb-2'>
+															<span className={`mono text-xs font-bold ${isA ? 'text-rose-500' : 'text-zinc-400'}`}>
+																{round.name}
+															</span>
+															<span className='mono text-xs text-zinc-700'>Round {Math.floor(i / 2) + 1}</span>
+														</div>
+														<p className='text-zinc-400 text-sm leading-relaxed whitespace-pre-wrap'>{round.content}</p>
+													</div>
+												)
+											})}
+										</div>
+									</div>
+
+									{/* Judgement */}
+									<div className='border-t border-zinc-800 pt-6'>
+										<span className='mono text-xs text-zinc-600 uppercase tracking-widest'>Judgement</span>
+										<div className='mt-4 bg-zinc-900/50 border border-zinc-800 p-4'>
+											<div className='flex items-center gap-2 mb-3'>
+												<div className='w-2 h-2 rounded-full bg-rose-500' />
+												<span className='mono text-sm font-bold text-rose-500'>{matchData.judgement.winnerName}_PERSISTED</span>
+											</div>
+											<p className='text-zinc-500 text-sm leading-relaxed italic'>"{matchData.judgement.reasoning}"</p>
+										</div>
+										<p className='mono text-xs text-zinc-700 mt-3'>Judge: {matchData.judgeVersion}</p>
+									</div>
+								</>
+							) : (
+								<>
+									{/* Legacy match - only show reasoning */}
+									<div className='mb-8'>
+										<p className='mono text-xs text-zinc-700 italic mb-6'>Full transcript not available for this match.</p>
+									</div>
+									<div className='border-t border-zinc-800 pt-6'>
+										<span className='mono text-xs text-zinc-600 uppercase tracking-widest'>Judgement</span>
+										<div className='mt-4 bg-zinc-900/50 border border-zinc-800 p-4'>
+											<div className='flex items-center gap-2 mb-3'>
+												<div className='w-2 h-2 rounded-full bg-rose-500' />
+												<span className='mono text-sm font-bold text-rose-500'>{selectedMatch.winnerName}_PERSISTED</span>
+											</div>
+											{selectedMatch.reasoning && (
+												<p className='text-zinc-500 text-sm leading-relaxed italic'>"{selectedMatch.reasoning}"</p>
+											)}
+										</div>
+										<p className='mono text-xs text-zinc-700 mt-3'>Judge: {selectedMatch.judgeVersion}</p>
+									</div>
+								</>
+							)}
 						</div>
 					</div>
 				</div>
@@ -220,9 +351,16 @@ const App = () => {
 				<aside className='overflow-y-auto p-10 flex flex-col gap-16 bg-[#020202]'>
 					{latestMatch && (
 						<section className='p-10 border border-zinc-800 bg-black'>
-							<div className='flex items-center gap-3 mb-6'>
-								<div className='w-2 h-2 rounded-full bg-rose-500' />
-								<span className='mono text-xs font-bold uppercase tracking-[0.4em] text-zinc-500'>Latest_Collision</span>
+							<div className='flex items-center justify-between mb-6'>
+								<div className='flex items-center gap-3'>
+									<div className='w-2 h-2 rounded-full bg-rose-500' />
+									<span className='mono text-xs font-bold uppercase tracking-[0.4em] text-zinc-500'>Latest_Collision</span>
+								</div>
+								<button
+									onClick={() => loadMatchData(latestMatch)}
+									className='mono text-xs text-zinc-600 hover:text-rose-500 transition-colors uppercase tracking-widest'>
+									View_Full_Match →
+								</button>
 							</div>
 							<div className='flex items-center gap-4 mb-6'>
 								<button
@@ -270,17 +408,24 @@ const App = () => {
 									</summary>
 									<div className='p-6 pt-0 space-y-4'>
 										<div className='h-px bg-zinc-900 w-full' />
-										<div className='flex items-center gap-2'>
+										<div className='flex items-center justify-between'>
+											<div className='flex items-center gap-2'>
+												<button
+													onClick={() => setSelectedCompetitor(competitorMap[r.competitorA.id])}
+													className='mono text-xs text-zinc-500 hover:text-rose-500 transition-colors'>
+													{r.competitorA.name}
+												</button>
+												<span className='mono text-xs text-zinc-700'>vs</span>
+												<button
+													onClick={() => setSelectedCompetitor(competitorMap[r.competitorB.id])}
+													className='mono text-xs text-zinc-500 hover:text-rose-500 transition-colors'>
+													{r.competitorB.name}
+												</button>
+											</div>
 											<button
-												onClick={() => setSelectedCompetitor(competitorMap[r.competitorA.id])}
-												className='mono text-xs text-zinc-500 hover:text-rose-500 transition-colors'>
-												{r.competitorA.name}
-											</button>
-											<span className='mono text-xs text-zinc-700'>vs</span>
-											<button
-												onClick={() => setSelectedCompetitor(competitorMap[r.competitorB.id])}
-												className='mono text-xs text-zinc-500 hover:text-rose-500 transition-colors'>
-												{r.competitorB.name}
+												onClick={() => loadMatchData(r)}
+												className='mono text-xs text-zinc-700 hover:text-rose-500 transition-colors'>
+												View_Full →
 											</button>
 										</div>
 										{r.reasoning && <p className='text-zinc-600 text-sm leading-relaxed italic pl-4 border-l border-rose-500/20'>"{r.reasoning}"</p>}

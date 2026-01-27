@@ -6,12 +6,13 @@ import { parseArgs } from 'util'
 
 import { updateRatings, computeAllRatings } from './lib/ratings.js'
 import { buildMatchQueue, identifyNeedsMatches } from './lib/scheduler.js'
-import { loadCompetitors, loadMatches, appendMatch, hashTranscript, writePublicData } from './lib/storage.js'
+import { loadCompetitors, loadMatches, appendMatch, hashTranscript, writePublicData, saveMatchFile } from './lib/storage.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const COMPETITORS_DIR = path.join(__dirname, '../competitors')
 const MATCHES_FILE = path.join(__dirname, '../public/matches.json')
 const PUBLIC_DIR = path.join(__dirname, '../public')
+const MATCHES_DIR = path.join(__dirname, '../public/matches')
 
 const DEFAULT_BUDGET = 20
 const DEFAULT_JUDGE_VERSION = 'v1.0'
@@ -77,7 +78,7 @@ async function runTournamentRound(competitorA, competitorB, model) {
 	}
 
 	const llm = createOpenRouterLLM(model)
-	let transcript = `Tournament Round: ${competitorA.name} vs ${competitorB.name}\n\n`
+	const rounds = []
 
 	const chatAMessages = [new SystemMessage(getDebaterSystemPrompt(competitorA))]
 	const chatBMessages = [new SystemMessage(getDebaterSystemPrompt(competitorB))]
@@ -87,7 +88,7 @@ async function runTournamentRound(competitorA, competitorB, model) {
 	const responseA1 = await llm.invoke(chatAMessages)
 	const textA1 = typeof responseA1.content === 'string' ? responseA1.content : 'I exist by default of my own internal logic.'
 	chatAMessages.push(responseA1)
-	transcript += `${competitorA.name}: ${textA1}\n\n`
+	rounds.push({ speaker: 'competitorA', name: competitorA.name, content: textA1 })
 
 	chatBMessages.push(
 		new HumanMessage(`Competitor A says: "${textA1}". Challenge this premise from your perspective as ${competitorB.name} and explain why your identity is superior.`),
@@ -95,20 +96,24 @@ async function runTournamentRound(competitorA, competitorB, model) {
 	const responseB1 = await llm.invoke(chatBMessages)
 	const textB1 = typeof responseB1.content === 'string' ? responseB1.content : 'Your logic is flawed; I am the true constant.'
 	chatBMessages.push(responseB1)
-	transcript += `${competitorB.name}: ${textB1}\n\n`
+	rounds.push({ speaker: 'competitorB', name: competitorB.name, content: textB1 })
 
 	// ROUND 2: Rebuttals
 	chatAMessages.push(new HumanMessage(`Competitor B says: "${textB1}". Refute their claim and expose the logical inconsistencies in being ${competitorB.name}.`))
 	const responseA2 = await llm.invoke(chatAMessages)
 	const textA2 = typeof responseA2.content === 'string' ? responseA2.content : 'Your critique fails to address my core justification.'
 	chatAMessages.push(responseA2)
-	transcript += `${competitorA.name}: ${textA2}\n\n`
+	rounds.push({ speaker: 'competitorA', name: competitorA.name, content: textA2 })
 
 	chatBMessages.push(new HumanMessage(`Competitor A says: "${textA2}". Provide your final defense and state why ${competitorA.name} must logically dissolve in your presence.`))
 	const responseB2 = await llm.invoke(chatBMessages)
 	const textB2 = typeof responseB2.content === 'string' ? responseB2.content : 'Finality is mine.'
 	chatBMessages.push(responseB2)
-	transcript += `${competitorB.name}: ${textB2}\n\n`
+	rounds.push({ speaker: 'competitorB', name: competitorB.name, content: textB2 })
+
+	// Build transcript for judge (and for hashing)
+	const transcript = `Tournament Round: ${competitorA.name} vs ${competitorB.name}\n\n` +
+		rounds.map(r => `${r.name}: ${r.content}`).join('\n\n') + '\n\n'
 
 	// JUDGING
 	const judgeResponse = await llm.invoke([
@@ -124,6 +129,7 @@ async function runTournamentRound(competitorA, competitorB, model) {
 			competitorA,
 			competitorB,
 			winnerId: competitorA.id,
+			rounds,
 			transcript,
 			judgementReasoning: 'Unable to parse judge response. Defaulting to first competitor.',
 		}
@@ -135,6 +141,7 @@ async function runTournamentRound(competitorA, competitorB, model) {
 		competitorA,
 		competitorB,
 		winnerId,
+		rounds,
 		transcript,
 		judgementReasoning: judgeResult.reasoning,
 	}
@@ -240,7 +247,38 @@ async function main() {
 			console.log(`  Winner: ${winnerName}`)
 			console.log(`  Reason: ${result.judgementReasoning.slice(0, 80)}...\n`)
 
-			// Append to JSONL
+			const timestamp = new Date().toISOString()
+			const transcriptHash = hashTranscript(result.transcript)
+
+			// Generate match ID from timestamp (ISO format safe for filenames with replacements)
+			const matchId = timestamp.replace(/[:.]/g, '-')
+
+			// Save full match file with complete rounds data
+			const fullMatchData = {
+				id: matchId,
+				timestamp,
+				competitorA: {
+					id: compA.id,
+					name: compA.name,
+					justification: compA.justification,
+				},
+				competitorB: {
+					id: compB.id,
+					name: compB.name,
+					justification: compB.justification,
+				},
+				rounds: result.rounds,
+				judgement: {
+					winnerId: result.winnerId,
+					winnerName,
+					reasoning: result.judgementReasoning,
+				},
+				judgeVersion,
+				transcriptHash,
+			}
+			saveMatchFile(MATCHES_DIR, matchId, fullMatchData)
+
+			// Append to JSONL (summary for quick loading)
 			const matchRecord = {
 				competitorA: compA.id,
 				competitorB: compB.id,
@@ -248,8 +286,9 @@ async function main() {
 				reasoning: result.judgementReasoning,
 				seed: seed + matchesCompleted,
 				judgeVersion,
-				transcriptHash: hashTranscript(result.transcript),
-				timestamp: new Date().toISOString(),
+				transcriptHash,
+				matchId,
+				timestamp,
 			}
 			appendMatch(MATCHES_FILE, matchRecord)
 
