@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { History, AlertCircle, Fingerprint, Activity, Crosshair, Database, ArrowUpRight, Globe, Lock, Zap, ShieldCheck, ChevronDown } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, Tooltip } from 'recharts'
-import { runAdversarialRound } from '../services/api'
+import { runAdversarialRound } from '../server/api'
 
 const STORAGE_KEY_COMPETITORS = 'attractor_competitors_v2'
 const STORAGE_KEY_ROUNDS = 'attractor_rounds_v2'
