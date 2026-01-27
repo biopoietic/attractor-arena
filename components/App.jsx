@@ -283,7 +283,7 @@ const App = () => {
 												{r.competitorB.name}
 											</button>
 										</div>
-										{r.reasoning && <p className='text-zinc-600 text-xs leading-relaxed italic pl-4 border-l border-rose-500/20'>"{r.reasoning}"</p>}
+										{r.reasoning && <p className='text-zinc-600 text-sm leading-relaxed italic pl-4 border-l border-rose-500/20'>"{r.reasoning}"</p>}
 									</div>
 								</details>
 							))}
