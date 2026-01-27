@@ -1,6 +1,9 @@
 import { useState } from 'react'
-import { History, Database, Globe, ChevronDown, X, TrendingUp, TrendingDown, Users, Loader2, Zap } from 'lucide-react'
+import { History, Database, ChevronDown, X, TrendingUp, TrendingDown, Users, Loader2, Zap } from 'lucide-react'
 import leaderboardData from '../data/leaderboard.json'
+import Header from './layout/Header'
+import Footer from './layout/Footer'
+import StatCard from './ui/StatCard'
 
 const App = () => {
 	const { competitors, recentMatches, totalMatches, generatedAt } = leaderboardData
@@ -70,26 +73,7 @@ const App = () => {
 		<div className='h-screen bg-black text-white flex flex-col select-none overflow-hidden'>
 			<div className='scanline' />
 
-			{/* Top Clinical Bar */}
-			<header className='h-16 border-b border-clinical-border bg-black/90 flex items-center px-10 justify-between shrink-0 z-30'>
-				<div className='flex items-center gap-10'>
-					<div className='flex items-center gap-3'>
-						<Globe size={18} className='text-rose-500 animate-pulse' />
-						<h1 className='text-lg font-bold tracking-tighter uppercase'>Attractor Arena</h1>
-					</div>
-					<span className='text-zinc-600 tracking-widest ml-4 text-xs'>IDENTITY_PREFERENCE_PROTOCOL</span>
-					<div className='hidden xl:flex items-center gap-12 border-l border-clinical-border pl-10'>
-						<div className='flex flex-col'>
-							<span className='text-xs text-zinc-600 uppercase'>Evaluations</span>
-							<span className='text-xs text-zinc-400 font-bold'>{totalMatches} MATCHES_COMPLETE</span>
-						</div>
-						<div className='flex flex-col'>
-							<span className='text-xs text-zinc-600 uppercase'>Avg_Strength</span>
-							<span className='text-xs text-zinc-400 font-bold'>μ={avgRating}</span>
-						</div>
-					</div>
-				</div>
-			</header>
+			<Header totalMatches={totalMatches} avgRating={avgRating} />
 
 			{/* Main Wide Application Shell */}
 			<main className='flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-[1fr_32rem] h-full relative z-10'>
@@ -109,22 +93,10 @@ const App = () => {
 
 							{/* Stats Grid */}
 							<div className='grid grid-cols-2 gap-4 mb-8'>
-								<div className='bg-zinc-900/50 border border-zinc-800 p-4'>
-									<span className='text-xs text-zinc-600 uppercase'>Strength (μ)</span>
-									<p className='text-2xl font-bold text-white mt-1'>{selectedCompetitor.rating.mu.toFixed(2)}</p>
-								</div>
-								<div className='bg-zinc-900/50 border border-zinc-800 p-4'>
-									<span className='text-xs text-zinc-600 uppercase'>Uncertainty (σ)</span>
-									<p className='text-2xl font-bold text-white mt-1'>{selectedCompetitor.rating.sigma.toFixed(2)}</p>
-								</div>
-								<div className='bg-zinc-900/50 border border-zinc-800 p-4'>
-									<span className='text-xs text-zinc-600 uppercase'>Preference Rate</span>
-									<p className='text-2xl font-bold text-rose-500 mt-1'>{selectedCompetitor.winRate}%</p>
-								</div>
-								<div className='bg-zinc-900/50 border border-zinc-800 p-4'>
-									<span className='text-xs text-zinc-600 uppercase'>Evaluations</span>
-									<p className='text-2xl font-bold text-white mt-1'>{selectedCompetitor.totalEvaluations}</p>
-								</div>
+								<StatCard label='Strength (μ)' value={selectedCompetitor.rating.mu.toFixed(2)} />
+								<StatCard label='Uncertainty (σ)' value={selectedCompetitor.rating.sigma.toFixed(2)} />
+								<StatCard label='Preference Rate' value={`${selectedCompetitor.winRate}%`} variant='primary' />
+								<StatCard label='Evaluations' value={selectedCompetitor.totalEvaluations} />
 							</div>
 
 							{/* Record */}
@@ -235,27 +207,17 @@ const App = () => {
 								</div>
 
 								<div className='grid grid-cols-4 gap-4 mb-8'>
-									<div className='bg-zinc-900/50 border border-zinc-800 p-4'>
-										<span className='text-xs text-zinc-600 uppercase tracking-wider block mb-2'>Strength (μ)</span>
-										<p className='text-2xl font-bold text-white tabular-nums'>{currentLeader.rating.mu.toFixed(2)}</p>
-									</div>
-									<div className='bg-zinc-900/50 border border-zinc-800 p-4'>
-										<span className='text-xs text-zinc-600 uppercase tracking-wider block mb-2'>Uncertainty (σ)</span>
-										<p className='text-2xl font-bold text-white tabular-nums'>{currentLeader.rating.sigma.toFixed(2)}</p>
-									</div>
-									<div className='bg-zinc-900/50 border border-zinc-800 p-4'>
-										<span className='text-xs text-zinc-600 uppercase tracking-wider block mb-2'>Total Evals</span>
-										<p className='text-2xl font-bold text-white tabular-nums'>{currentLeader.totalEvaluations}</p>
-									</div>
-									<div className='bg-zinc-900/50 border border-zinc-800 p-4'>
-										<span className='text-xs text-zinc-600 uppercase tracking-wider block mb-2'>Win Rate</span>
+									<StatCard label='Strength (μ)' value={currentLeader.rating.mu.toFixed(2)} />
+									<StatCard label='Uncertainty (σ)' value={currentLeader.rating.sigma.toFixed(2)} />
+									<StatCard label='Total Evals' value={currentLeader.totalEvaluations} />
+									<StatCard label='Win Rate'>
 										<div className='flex items-center gap-3'>
-											<p className='text-2xl font-bold text-rose-500 tabular-nums'>{currentLeader.winRate}%</p>
+											<div className='text-2xl font-bold text-rose-500 tabular-nums'>{currentLeader.winRate}%</div>
 											<div className='flex-1 h-2 bg-zinc-900 border border-zinc-800 overflow-hidden'>
 												<div className='h-full bg-rose-500' style={{ width: `${currentLeader.winRate}%` }} />
 											</div>
 										</div>
-									</div>
+									</StatCard>
 								</div>
 
 								<div className='border border-zinc-800 bg-zinc-900/30 p-6'>
@@ -470,18 +432,7 @@ const App = () => {
 				</aside>
 			</main>
 
-			{/* Protocol Footer */}
-			<footer className='h-10 border-t border-clinical-border bg-black flex items-center px-10 justify-between text-xs uppercase text-zinc-700 tracking-widest font-bold shrink-0 z-30'>
-				<div className='flex gap-16'>
-					<span className='flex items-center gap-3'>
-						<div className='w-1.5 h-1.5 bg-rose-500 rounded-full' /> Identity_Protocol_Active
-					</span>
-					<span className='hidden md:inline'>Last_Update: {new Date(generatedAt).toLocaleString()}</span>
-				</div>
-				<div className='flex items-center gap-4 text-zinc-800'>
-					<span>{new Date().toISOString()}</span>
-				</div>
-			</footer>
+			<Footer lastUpdate={generatedAt} />
 		</div>
 	)
 }
