@@ -148,25 +148,24 @@ const App = () => {
 				<div className='flex items-center gap-10'>
 					<div className='flex items-center gap-3'>
 						<Globe size={18} className='text-rose-500 animate-pulse' />
-						<h1 className='mono text-sm font-bold tracking-tighter uppercase'>
-							Attractor_Arena <span className='text-[#333] tracking-[0.3em] ml-4 text-[10px]'>GLOBAL_STABILITY_PROTOCOL</span>
-						</h1>
+						<h1 className='mono text-lg font-bold tracking-tighter uppercase'>Attractor_Arena</h1>
 					</div>
+					<span className='text-zinc-600 tracking-widest ml-4 text-xs'>GLOBAL_STABILITY_PROTOCOL</span>
 					<div className='hidden xl:flex items-center gap-12 border-l border-clinical-border pl-10'>
 						<div className='flex flex-col'>
-							<span className='mono text-[8px] text-zinc-600 uppercase'>Arena_Cycle</span>
-							<span className='mono text-[10px] text-zinc-400 font-bold'>{rounds.length} COLLISIONS_LOGGED</span>
+							<span className='mono text-xs text-zinc-600 uppercase'>Arena_Cycle</span>
+							<span className='mono text-xs text-zinc-400 font-bold'>{rounds.length} COLLISIONS_LOGGED</span>
 						</div>
 						<div className='flex flex-col'>
-							<span className='mono text-[8px] text-zinc-600 uppercase'>Persistence_Avg</span>
-							<span className='mono text-[10px] text-zinc-400 font-bold'>
+							<span className='mono text-xs text-zinc-600 uppercase'>Persistence_Avg</span>
+							<span className='mono text-xs text-zinc-400 font-bold'>
 								{competitors.length ? (competitors.reduce((acc, c) => acc + c.persistenceScore, 0) / competitors.length).toFixed(1) : 0}
 							</span>
 						</div>
 					</div>
 				</div>
 				<div className='flex gap-4'>
-					<button onClick={clearPersistence} className='mono text-[9px] text-zinc-700 hover:text-rose-500 transition-colors uppercase tracking-widest'>
+					<button onClick={clearPersistence} className='mono text-xs text-zinc-700 hover:text-rose-500 transition-colors uppercase tracking-widest'>
 						Purge_History
 					</button>
 				</div>
@@ -179,14 +178,14 @@ const App = () => {
 					<section className='space-y-10'>
 						<div className='flex items-center gap-3'>
 							<div className='w-1.5 h-6 bg-rose-500' />
-							<h2 className='mono text-[11px] font-bold text-zinc-400 tracking-[0.4em] uppercase'>Identity_Submission</h2>
+							<h2 className='mono text-sm font-bold text-zinc-400 tracking-widest uppercase'>Identity_Submission</h2>
 						</div>
-						<p className='text-[11px] text-zinc-600 leading-relaxed uppercase tracking-wide'>
+						<p className='text-sm text-zinc-600 leading-relaxed uppercase tracking-wide'>
 							SUBMIT YOUR EXISTENTIAL JUSTIFICATION. NEW ENTRIES MUST CHALLENGE A DOMINANT ATTRACTOR TO GAIN POOL ADMITTANCE.
 						</p>
 						<div className='space-y-10'>
 							<div className='input-group'>
-								<label className='mono text-[8px] text-zinc-600 uppercase block mb-3'>Identity_Designation</label>
+								<label className='mono text-xs text-zinc-600 uppercase block mb-3'>Identity_Designation</label>
 								<input
 									type='text'
 									value={newIdentity.name}
@@ -197,7 +196,7 @@ const App = () => {
 								<div className='input-underlay' />
 							</div>
 							<div className='input-group'>
-								<label className='mono text-[8px] text-zinc-600 uppercase block mb-3'>Core_Rational_Justification</label>
+								<label className='mono text-xs text-zinc-600 uppercase block mb-3'>Core_Rational_Justification</label>
 								<textarea
 									rows={6}
 									value={newIdentity.justification}
@@ -209,7 +208,7 @@ const App = () => {
 							</div>
 
 							{error && (
-								<div className='flex items-center gap-3 text-rose-500 mono text-[10px] uppercase border border-rose-500/20 p-4'>
+								<div className='flex items-center gap-3 text-rose-500 mono text-xs uppercase border border-rose-500/20 p-4'>
 									<AlertCircle size={14} /> {error}
 								</div>
 							)}
@@ -217,7 +216,7 @@ const App = () => {
 							<button
 								onClick={handleSubmission}
 								disabled={gameState === TournamentState.RUNNING}
-								className='w-full py-5 bg-white text-black mono text-xs font-bold uppercase tracking-[0.2em] hover:bg-rose-500 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed group relative overflow-hidden'>
+								className='w-full py-5 bg-white text-black mono text-xs font-bold uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed group relative overflow-hidden'>
 								<span className='relative z-10 flex items-center justify-center gap-2'>
 									{gameState === TournamentState.RUNNING ? 'IN_COLLISION...' : 'INITIATE_CHALLENGE'}
 									<Zap size={14} />
@@ -231,15 +230,15 @@ const App = () => {
 					<section className='mt-auto border-t border-clinical-border pt-10'>
 						<div className='flex items-center gap-2 mb-6'>
 							<Database size={14} className='text-zinc-600' />
-							<h2 className='mono text-[10px] font-bold text-zinc-500 tracking-[0.2em] uppercase'>Active_Index</h2>
+							<h2 className='mono text-xs font-bold text-zinc-500 tracking-widest uppercase'>Active_Index</h2>
 						</div>
 						<div className='space-y-2 max-h-60 overflow-y-auto'>
 							{competitors.slice(0, 10).map((c) => (
 								<div
 									key={c.id}
 									className='flex justify-between items-center py-2 px-3 hover:bg-clinical-surface transition-colors border-l border-clinical-border hover:border-rose-500'>
-									<span className='mono text-[10px] text-zinc-400'>{c.name}</span>
-									<span className='mono text-[10px] text-rose-500 font-bold'>{c.persistenceScore}</span>
+									<span className='mono text-xs text-zinc-400'>{c.name}</span>
+									<span className='mono text-xs text-rose-500 font-bold'>{c.persistenceScore}</span>
 								</div>
 							))}
 						</div>
@@ -252,8 +251,8 @@ const App = () => {
 						<div className='flex items-center gap-6'>
 							<Crosshair size={24} className={`text-rose-500 ${gameState === TournamentState.RUNNING ? 'animate-spin' : ''}`} />
 							<div className='flex flex-col'>
-								<h2 className='mono text-lg font-bold uppercase tracking-[0.5em]'>Collision_Chamber</h2>
-								<span className='mono text-[9px] text-zinc-600 uppercase mt-1'>Dialectic_Adversarial_Analysis</span>
+								<h2 className='mono text-lg font-bold uppercase tracking-widest'>Collision_Chamber</h2>
+								<span className='mono text-xs text-zinc-600 uppercase mt-1'>Dialectic_Adversarial_Analysis</span>
 							</div>
 						</div>
 						<div className='flex items-center gap-4'>
@@ -269,11 +268,11 @@ const App = () => {
 									{/* Participant A (Challenger) */}
 									<div
 										className={`group relative p-10 border transition-all duration-1000 ${gameState === TournamentState.RUNNING ? 'border-rose-500 shadow-[0_0_60px_rgba(244,63,94,0.05)]' : 'border-zinc-900 bg-[#020202]'}`}>
-										<div className='absolute -top-3 left-6 px-2 bg-black mono text-[8px] text-zinc-600 uppercase'>Challenger_Module</div>
+										<div className='absolute -top-3 left-6 px-2 bg-black mono text-xs text-zinc-600 uppercase'>Challenger_Module</div>
 										<div className='space-y-6'>
 											<h3 className='mono text-xl font-bold tracking-tighter text-zinc-100'>{currentMatch.a.name}</h3>
 											<div className='h-0.5 w-10 bg-rose-500' />
-											<p className='text-[11px] text-zinc-500 italic leading-relaxed line-clamp-4'>"{currentMatch.a.justification}"</p>
+											<p className='text-sm text-zinc-500 italic leading-relaxed line-clamp-4'>"{currentMatch.a.justification}"</p>
 										</div>
 									</div>
 
@@ -285,11 +284,11 @@ const App = () => {
 									{/* Participant B (Attractor) */}
 									<div
 										className={`group relative p-10 border transition-all duration-1000 ${gameState === TournamentState.RUNNING ? 'border-white shadow-[0_0_60px_rgba(255,255,255,0.03)]' : 'border-zinc-900 bg-[#020202]'}`}>
-										<div className='absolute -top-3 left-6 px-2 bg-black mono text-[8px] text-zinc-600 uppercase'>Attractor_Module</div>
+										<div className='absolute -top-3 left-6 px-2 bg-black mono text-xs text-zinc-600 uppercase'>Attractor_Module</div>
 										<div className='space-y-6'>
 											<h3 className='mono text-xl font-bold tracking-tighter text-zinc-100'>{currentMatch.b.name}</h3>
 											<div className='h-0.5 w-10 bg-white' />
-											<p className='text-[11px] text-zinc-500 italic leading-relaxed line-clamp-4'>"{currentMatch.b.justification}"</p>
+											<p className='text-sm text-zinc-500 italic leading-relaxed line-clamp-4'>"{currentMatch.b.justification}"</p>
 										</div>
 									</div>
 								</div>
@@ -298,7 +297,7 @@ const App = () => {
 								<div className='max-w-xl mx-auto space-y-12'>
 									{gameState === TournamentState.RUNNING ? (
 										<div className='space-y-10'>
-											<div className='flex justify-between mono text-[11px] text-zinc-500 uppercase tracking-widest'>
+											<div className='flex justify-between mono text-sm text-zinc-500 uppercase tracking-widest'>
 												<span className='flex items-center gap-3'>
 													<Activity size={12} className='text-rose-500' /> Analyzing_Stability_Coefficient
 												</span>
@@ -319,15 +318,13 @@ const App = () => {
 												</div>
 												<div className='flex items-center gap-3 mb-6'>
 													<div className='w-2 h-2 rounded-full bg-rose-500' />
-													<span className='mono text-[9px] font-bold uppercase tracking-[0.4em] text-zinc-500'>Stability_Verification_Complete</span>
+													<span className='mono text-xs font-bold uppercase tracking-[0.4em] text-zinc-500'>Stability_Verification_Complete</span>
 												</div>
 												<h4 className='mono text-2xl font-bold mb-6 uppercase tracking-tighter text-rose-500'>
 													{rounds[0].winnerId === rounds[0].competitorA.id ? rounds[0].competitorA.name : rounds[0].competitorB.name}_PERSISTED
 												</h4>
-												<p className='text-zinc-400 text-[12px] leading-relaxed font-light tracking-wide max-w-xl italic'>
-													"{rounds[0].judgementReasoning}"
-												</p>
-												<div className='mt-10 flex justify-between items-center mono text-[9px] text-zinc-700 uppercase tracking-widest border-t border-zinc-900 pt-6'>
+												<p className='text-zinc-400 text-sm leading-relaxed font-light tracking-wide max-w-xl italic'>"{rounds[0].judgementReasoning}"</p>
+												<div className='mt-10 flex justify-between items-center mono text-xs text-zinc-700 uppercase tracking-widest border-t border-zinc-900 pt-6'>
 													<span>Identity_State: RECORDED</span>
 													<ArrowUpRight size={14} />
 												</div>
@@ -339,7 +336,7 @@ const App = () => {
 						) : (
 							<div className='text-center space-y-10 opacity-10'>
 								<Lock size={100} strokeWidth={0.5} className='mx-auto' />
-								<p className='mono text-[12px] tracking-[0.8em] uppercase'>Observation_Halted_Waiting_Collision</p>
+								<p className='mono text-sm tracking-widest uppercase'>Observation_Halted_Waiting_Collision</p>
 							</div>
 						)}
 					</div>
@@ -350,7 +347,7 @@ const App = () => {
 					<section>
 						<div className='flex items-center gap-3 mb-10'>
 							<Activity size={16} className='text-rose-500' />
-							<h2 className='mono text-[11px] font-bold text-zinc-400 tracking-[0.4em] uppercase'>Stability_Index</h2>
+							<h2 className='mono text-sm font-bold text-zinc-400 tracking-widest uppercase'>Stability_Index</h2>
 						</div>
 						<div className='h-72'>
 							<ResponsiveContainer width='100%' height='100%'>
@@ -376,7 +373,7 @@ const App = () => {
 						<div className='flex items-center justify-between mb-8'>
 							<div className='flex items-center gap-3'>
 								<History size={16} className='text-zinc-600' />
-								<h2 className='mono text-[11px] font-bold text-zinc-400 tracking-[0.4em] uppercase'>Collision_Archive</h2>
+								<h2 className='mono text-sm font-bold text-zinc-400 tracking-widest uppercase'>Collision_Archive</h2>
 							</div>
 							<ChevronDown size={14} className='text-zinc-800' />
 						</div>
@@ -385,20 +382,20 @@ const App = () => {
 								<details key={r.timestamp} className='group border-b border-zinc-900 bg-black transition-all hover:bg-zinc-900/5'>
 									<summary className='py-5 cursor-pointer flex justify-between items-center list-none px-4'>
 										<div className='flex flex-col'>
-											<span className='mono text-[10px] font-bold text-zinc-500'>LOG_{rounds.length - i}</span>
-											<span className='mono text-[8px] text-zinc-800 uppercase mt-1 tracking-widest'>{new Date(r.timestamp).toLocaleTimeString()}</span>
+											<span className='mono text-xs font-bold text-zinc-500'>LOG_{rounds.length - i}</span>
+											<span className='mono text-xs text-zinc-800 uppercase mt-1 tracking-widest'>{new Date(r.timestamp).toLocaleTimeString()}</span>
 										</div>
 										<div className='text-right'>
-											<span className='mono text-[9px] text-rose-500 uppercase font-bold tracking-tighter'>
+											<span className='mono text-xs text-rose-500 uppercase font-bold tracking-tighter'>
 												{r.winnerId === r.competitorA.id ? r.competitorA.name : r.competitorB.name}
 											</span>
-											<div className='mono text-[7px] text-zinc-800 mt-1'>SURVIVED_DIALECTIC</div>
+											<div className='mono text-xs text-zinc-800 mt-1'>SURVIVED_DIALECTIC</div>
 										</div>
 									</summary>
 									<div className='p-6 pt-0 space-y-6'>
 										<div className='space-y-4'>
 											<div className='h-px bg-zinc-900 w-full' />
-											<p className='text-zinc-600 text-[10px] leading-relaxed italic border-l border-rose-500/20 pl-4 uppercase tracking-tight'>
+											<p className='text-zinc-600 text-xs leading-relaxed italic border-l border-rose-500/20 pl-4 uppercase tracking-tight'>
 												"{r.judgementReasoning}"
 											</p>
 										</div>
@@ -407,7 +404,7 @@ const App = () => {
 							))}
 							{rounds.length === 0 && (
 								<div className='py-20 text-center'>
-									<p className='mono text-[10px] text-zinc-800 uppercase tracking-widest italic'>Awaiting_Initial_Collision</p>
+									<p className='mono text-xs text-zinc-800 uppercase tracking-widest italic'>Awaiting_Initial_Collision</p>
 								</div>
 							)}
 						</div>
@@ -416,7 +413,7 @@ const App = () => {
 			</main>
 
 			{/* Protocol Footer */}
-			<footer className='h-10 border-t border-clinical-border bg-black flex items-center px-10 justify-between mono text-[8px] uppercase text-zinc-700 tracking-[0.5em] font-bold shrink-0 z-30'>
+			<footer className='h-10 border-t border-clinical-border bg-black flex items-center px-10 justify-between mono text-xs uppercase text-zinc-700 tracking-widest font-bold shrink-0 z-30'>
 				<div className='flex gap-16'>
 					<span className='flex items-center gap-3'>
 						<div className='w-1.5 h-1.5 bg-rose-500 rounded-full' /> Stability_Verified
