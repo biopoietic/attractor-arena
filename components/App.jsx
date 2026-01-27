@@ -54,7 +54,7 @@ const App = () => {
 	// Calculate average rating for display
 	const avgRating = competitors.length ? (competitors.reduce((acc, c) => acc + c.rating.mu, 0) / competitors.length).toFixed(2) : 0
 
-	const latestMatch = recentMatches.length > 0 ? recentMatches[0] : null
+	const currentLeader = competitors.length > 0 ? competitors[0] : null
 
 	// Get matches for a specific competitor
 	const getCompetitorMatches = (competitorId) => {
@@ -190,39 +190,79 @@ const App = () => {
 						</div>
 					)}
 
-					{/* Latest Match Highlight */}
-					{!selectedCompetitor && latestMatch && (
-						<section className='p-10 border border-zinc-800 bg-black'>
-							<div className='flex items-center justify-between mb-6'>
+					{/* Current Leader Highlight */}
+					{!selectedCompetitor && currentLeader && (
+						<section className='border border-zinc-800 bg-linear-to-br from-black via-black to-zinc-900/20'>
+							<div className='flex items-center justify-between p-6 border-b border-zinc-800'>
 								<div className='flex items-center gap-3'>
-									<div className='w-2 h-2 rounded-full bg-rose-500' />
-									<span className='text-xs font-bold uppercase tracking-[0.4em] text-zinc-500'>Latest_Evaluation</span>
+									<div className='w-2 h-2 rounded-full bg-rose-500 animate-pulse' />
+									<span className='text-xs font-bold uppercase tracking-[0.4em] text-zinc-500'>Current_Leader</span>
 								</div>
 								<button
-									onClick={() => loadMatchData(latestMatch)}
+									onClick={() => setSelectedCompetitor(currentLeader)}
 									className='text-xs text-zinc-600 hover:text-rose-500 transition-colors uppercase tracking-widest'>
-									View_Details →
+									View_Profile →
 								</button>
 							</div>
-							<div className='flex items-center gap-4 mb-6'>
-								<button
-									onClick={() => setSelectedCompetitor(competitorMap[latestMatch.competitorA.id])}
-									className='text-sm text-zinc-500 hover:text-rose-500 transition-colors'>
-									{latestMatch.competitorA.name}
-								</button>
-								<span className='text-xs text-zinc-700'>vs</span>
-								<button
-									onClick={() => setSelectedCompetitor(competitorMap[latestMatch.competitorB.id])}
-									className='text-sm text-zinc-500 hover:text-rose-500 transition-colors'>
-									{latestMatch.competitorB.name}
-								</button>
+
+							<div className='p-8'>
+								<div className='flex items-start justify-between mb-8'>
+									<div>
+										<div className='flex items-center gap-3 mb-2'>
+											<span className='text-xs text-zinc-600 uppercase tracking-widest'>Rank #1</span>
+											<div className='h-4 w-px bg-zinc-800' />
+											<span className='text-xs text-zinc-600'>{currentLeader.matches} Evaluations</span>
+										</div>
+										<h4 className='text-4xl font-bold uppercase tracking-tighter text-rose-500 mb-3'>{currentLeader.name}</h4>
+										<div className='flex items-center gap-4'>
+											<div className='flex items-center gap-2'>
+												<TrendingUp size={16} className='text-emerald-500' />
+												<span className='text-sm text-emerald-500 font-bold'>{currentLeader.wins}W</span>
+											</div>
+											<div className='flex items-center gap-2'>
+												<TrendingDown size={16} className='text-red-500' />
+												<span className='text-sm text-red-500 font-bold'>{currentLeader.losses}L</span>
+											</div>
+											<div className='text-sm text-zinc-600'>•</div>
+											<span className='text-sm text-zinc-400'>{currentLeader.winRate}% preference rate</span>
+										</div>
+									</div>
+
+									<div className='text-right'>
+										<span className='text-xs text-zinc-600 uppercase tracking-widest block mb-1'>Conservative Rating</span>
+										<span className='text-5xl font-bold text-rose-500 tabular-nums'>{currentLeader.conservativeRating}</span>
+									</div>
+								</div>
+
+								<div className='grid grid-cols-4 gap-4 mb-8'>
+									<div className='bg-zinc-900/50 border border-zinc-800 p-4'>
+										<span className='text-xs text-zinc-600 uppercase tracking-wider block mb-2'>Strength (μ)</span>
+										<p className='text-2xl font-bold text-white tabular-nums'>{currentLeader.rating.mu.toFixed(2)}</p>
+									</div>
+									<div className='bg-zinc-900/50 border border-zinc-800 p-4'>
+										<span className='text-xs text-zinc-600 uppercase tracking-wider block mb-2'>Uncertainty (σ)</span>
+										<p className='text-2xl font-bold text-white tabular-nums'>{currentLeader.rating.sigma.toFixed(2)}</p>
+									</div>
+									<div className='bg-zinc-900/50 border border-zinc-800 p-4'>
+										<span className='text-xs text-zinc-600 uppercase tracking-wider block mb-2'>Total Evals</span>
+										<p className='text-2xl font-bold text-white tabular-nums'>{currentLeader.totalEvaluations}</p>
+									</div>
+									<div className='bg-zinc-900/50 border border-zinc-800 p-4'>
+										<span className='text-xs text-zinc-600 uppercase tracking-wider block mb-2'>Win Rate</span>
+										<div className='flex items-center gap-3'>
+											<p className='text-2xl font-bold text-rose-500 tabular-nums'>{currentLeader.winRate}%</p>
+											<div className='flex-1 h-2 bg-zinc-900 border border-zinc-800 overflow-hidden'>
+												<div className='h-full bg-rose-500' style={{ width: `${currentLeader.winRate}%` }} />
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div className='border border-zinc-800 bg-zinc-900/30 p-6'>
+									<span className='text-xs text-zinc-600 uppercase tracking-widest block mb-3'>Core Justification</span>
+									<p className='text-zinc-400 text-sm leading-relaxed italic border-l-2 border-rose-500/50 pl-4'>"{currentLeader.justification}"</p>
+								</div>
 							</div>
-							<h4 className='text-2xl font-bold mb-4 uppercase tracking-tighter text-rose-500'>{latestMatch.winnerName}_PREFERRED</h4>
-							<p className='text-zinc-500 text-sm mb-4'>
-								Score: {latestMatch.scoreA}-{latestMatch.scoreB} of {latestMatch.totalEvaluations} evaluations
-								{` | Consensus: ${getEntropyLabel(latestMatch.entropy)}`}
-							</p>
-							<p className='text-zinc-700 text-xs'>Judge: {latestMatch.judgeVersion}</p>
 						</section>
 					)}
 
@@ -252,21 +292,15 @@ const App = () => {
 											className={`text-xs text-zinc-600 p-4 group-hover:bg-clinical-surface transition-colors border-l-2 ${index < 3 ? 'border-rose-500' : 'border-clinical-border'} group-hover:border-rose-500`}>
 											{index + 1}
 										</span>
-										<span className='text-zinc-400 text-left group-hover:text-white group-hover:bg-clinical-surface transition-colors p-4'>
-											{c.name}
-										</span>
+										<span className='text-zinc-400 text-left group-hover:text-white group-hover:bg-clinical-surface transition-colors p-4'>{c.name}</span>
 										<div className='flex items-center gap-2 justify-center p-4 group-hover:bg-clinical-surface transition-colors'>
 											<span className='text-xs text-zinc-600'>{c.winRate}%</span>
 											<div className='h-1.5 w-16 bg-zinc-900 border border-zinc-800 overflow-hidden'>
 												<div className='h-full bg-rose-500' style={{ width: `${c.winRate}%` }} />
 											</div>
 										</div>
-										<span className='text-xs text-zinc-600 text-right p-4 group-hover:bg-clinical-surface transition-colors'>
-											{c.rating.mu.toFixed(2)}
-										</span>
-										<span className='text-xs text-zinc-700 text-right p-4 group-hover:bg-clinical-surface transition-colors'>
-											{c.rating.sigma.toFixed(2)}
-										</span>
+										<span className='text-xs text-zinc-600 text-right p-4 group-hover:bg-clinical-surface transition-colors'>{c.rating.mu.toFixed(2)}</span>
+										<span className='text-xs text-zinc-700 text-right p-4 group-hover:bg-clinical-surface transition-colors'>{c.rating.sigma.toFixed(2)}</span>
 										<span
 											className={`text-xs font-bold text-right p-4 group-hover:bg-clinical-surface transition-colors ${index < 3 ? 'text-rose-500' : 'text-zinc-500'}`}>
 											{c.conservativeRating}
