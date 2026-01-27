@@ -144,7 +144,7 @@ const App = () => {
 			<div className='scanline' />
 
 			{/* Top Clinical Bar */}
-			<header className='h-16 border-b border-[#141414] bg-black/90 flex items-center px-10 justify-between shrink-0 z-30'>
+			<header className='h-16 border-b border-clinical-border bg-black/90 flex items-center px-10 justify-between shrink-0 z-30'>
 				<div className='flex items-center gap-10'>
 					<div className='flex items-center gap-3'>
 						<Globe size={18} className='text-rose-500 animate-pulse' />
@@ -152,7 +152,7 @@ const App = () => {
 							Attractor_Arena <span className='text-[#333] tracking-[0.3em] ml-4 text-[10px]'>GLOBAL_STABILITY_PROTOCOL</span>
 						</h1>
 					</div>
-					<div className='hidden xl:flex items-center gap-12 border-l border-[#141414] pl-10'>
+					<div className='hidden xl:flex items-center gap-12 border-l border-clinical-border pl-10'>
 						<div className='flex flex-col'>
 							<span className='mono text-[8px] text-zinc-600 uppercase'>Arena_Cycle</span>
 							<span className='mono text-[10px] text-zinc-400 font-bold'>{rounds.length} COLLISIONS_LOGGED</span>
@@ -175,7 +175,7 @@ const App = () => {
 			{/* Main Wide Application Shell */}
 			<main className='flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-[24rem_1fr_24rem] h-full relative z-10'>
 				{/* Left: Identity Submission */}
-				<aside className='border-r border-[#141414] overflow-y-auto p-10 flex flex-col gap-12 bg-black'>
+				<aside className='border-r border-clinical-border overflow-y-auto p-10 flex flex-col gap-12 bg-black'>
 					<section className='space-y-10'>
 						<div className='flex items-center gap-3'>
 							<div className='w-1.5 h-6 bg-rose-500' />
@@ -228,7 +228,7 @@ const App = () => {
 					</section>
 
 					{/* Active Pool Quick View */}
-					<section className='mt-auto border-t border-[#141414] pt-10'>
+					<section className='mt-auto border-t border-clinical-border pt-10'>
 						<div className='flex items-center gap-2 mb-6'>
 							<Database size={14} className='text-zinc-600' />
 							<h2 className='mono text-[10px] font-bold text-zinc-500 tracking-[0.2em] uppercase'>Active_Index</h2>
@@ -237,7 +237,7 @@ const App = () => {
 							{competitors.slice(0, 10).map((c) => (
 								<div
 									key={c.id}
-									className='flex justify-between items-center py-2 px-3 hover:bg-[#050505] transition-colors border-l border-[#141414] hover:border-rose-500'>
+									className='flex justify-between items-center py-2 px-3 hover:bg-clinical-surface transition-colors border-l border-clinical-border hover:border-rose-500'>
 									<span className='mono text-[10px] text-zinc-400'>{c.name}</span>
 									<span className='mono text-[10px] text-rose-500 font-bold'>{c.persistenceScore}</span>
 								</div>
@@ -247,8 +247,8 @@ const App = () => {
 				</aside>
 
 				{/* Center: The Collision Chamber */}
-				<section className='bg-black relative flex flex-col border-r border-[#141414] chamber-glow'>
-					<div className='p-12 border-b border-[#141414] flex justify-between items-center shrink-0'>
+				<section className='bg-black relative flex flex-col border-r border-clinical-border chamber-glow'>
+					<div className='p-12 border-b border-clinical-border flex justify-between items-center shrink-0'>
 						<div className='flex items-center gap-6'>
 							<Crosshair size={24} className={`text-rose-500 ${gameState === TournamentState.RUNNING ? 'animate-spin' : ''}`} />
 							<div className='flex flex-col'>
@@ -258,7 +258,7 @@ const App = () => {
 						</div>
 						<div className='flex items-center gap-4'>
 							<ShieldCheck size={16} className='text-zinc-800' />
-							<div className='h-px w-20 bg-[#141414]' />
+							<div className='h-px w-20 bg-clinical-border' />
 						</div>
 					</div>
 
@@ -279,7 +279,7 @@ const App = () => {
 
 									<div className='flex flex-col items-center gap-4'>
 										<div className='mono text-xs font-black text-rose-500 animate-pulse'>VS</div>
-										<div className='h-32 w-px bg-gradient-to-b from-transparent via-[#222] to-transparent' />
+										<div className='h-32 w-px bg-linear-to-b from-transparent via-[#222] to-transparent' />
 									</div>
 
 									{/* Participant B (Attractor) */}
@@ -304,7 +304,7 @@ const App = () => {
 												</span>
 												<span className='animate-pulse'>PROCESSING...</span>
 											</div>
-											<div className='w-full h-[1px] bg-zinc-900 relative'>
+											<div className='w-full h-px bg-zinc-900 relative'>
 												<div
 													className='absolute top-0 left-0 h-full bg-rose-500 shadow-[0_0_20px_rgba(244,63,94,1)] transition-all duration-300'
 													style={{ width: '72%' }}
@@ -416,7 +416,7 @@ const App = () => {
 			</main>
 
 			{/* Protocol Footer */}
-			<footer className='h-10 border-t border-[#141414] bg-black flex items-center px-10 justify-between mono text-[8px] uppercase text-zinc-700 tracking-[0.5em] font-bold shrink-0 z-30'>
+			<footer className='h-10 border-t border-clinical-border bg-black flex items-center px-10 justify-between mono text-[8px] uppercase text-zinc-700 tracking-[0.5em] font-bold shrink-0 z-30'>
 				<div className='flex gap-16'>
 					<span className='flex items-center gap-3'>
 						<div className='w-1.5 h-1.5 bg-rose-500 rounded-full' /> Stability_Verified
