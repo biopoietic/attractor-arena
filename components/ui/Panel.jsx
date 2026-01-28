@@ -1,7 +1,7 @@
 const Panel = ({ header, children }) => {
 	return (
-		<section className='border border-zinc-800'>
-			{header ? <header className='px-8 py-4 border-b border-zinc-800'>{header}</header> : null}
+		<section className='bg-brand-surface border border-brand-border'>
+			{header ? <header className='px-8 py-4 border-b border-brand-border'>{header}</header> : null}
 
 			<div className='p-8'>{children}</div>
 		</section>

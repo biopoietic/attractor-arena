@@ -13,10 +13,10 @@ const RecentMatchesSidebar = () => (
 	<section className='flex-1 flex flex-col'>
 		<div className='flex items-center justify-between mb-8'>
 			<div className='flex items-center gap-3'>
-				<History size={16} className='text-zinc-600' />
-				<h2 className='text-sm font-bold text-zinc-400 tracking-widest uppercase'>Recent_Matches</h2>
+				<History size={16} className='text-brand-muted' />
+				<h2 className='text-sm font-bold tracking-widest uppercase'>Recent_Matches</h2>
 			</div>
-			<ChevronDown size={14} className='text-zinc-800' />
+			<ChevronDown size={14} className='text-brand-border' />
 		</div>
 		<div className='overflow-y-auto flex-1 pr-4'>
 			<MatchList matches={recentMatches} totalMatches={totalMatches} />
@@ -37,11 +37,13 @@ const HomePage = () => {
 					header={
 						<div className='flex items-center justify-between gap-3'>
 							<div className='flex items-center gap-3'>
-								<div className='w-2 h-2 rounded-full bg-rose-500 animate-pulse' />
-								<span className='text-xs font-bold uppercase tracking-[0.4em] text-zinc-500'>Current_Leader</span>
+								<div className='w-2 h-2 rounded-full bg-brand-highlight animate-pulse' />
+								<span className='text-sm font-bold uppercase tracking-widest text-brand-muted'>Current_Leader</span>
 							</div>
 
-							<Link to={`/competitor/${currentLeader.id}`} className='text-xs text-zinc-600 hover:text-rose-500 transition-colors uppercase tracking-widest'>
+							<Link
+								to={`/competitor/${currentLeader.id}`}
+								className='text-xs text-brand-muted hover:text-brand-highlight transition-colors uppercase tracking-widest'>
 								View_Profile →
 							</Link>
 						</div>
@@ -54,38 +56,38 @@ const HomePage = () => {
 			<Panel
 				header={
 					<div className='flex items-center gap-2'>
-						<Database size={14} className='text-zinc-600' />
-						<span className='text-xs font-bold uppercase tracking-[0.4em] text-zinc-500'>Leaderboard</span>
+						<Database size={14} className='text-brand-muted' />
+						<span className='text-sm font-bold uppercase tracking-widest text-brand-muted'>Leaderboard</span>
 					</div>
 				}>
 				<div className='grid grid-cols-[auto_1fr_auto_auto_auto_auto]'>
 					{/* Column Headers */}
-					<div className='contents'>
-						<span className='text-xs text-zinc-600 uppercase font-semibold p-4 border-b border-zinc-800'>#</span>
-						<span className='text-xs text-zinc-600 uppercase font-semibold p-4 border-b border-zinc-800'>Name</span>
-						<span className='text-xs text-zinc-600 uppercase font-semibold p-4 border-b border-zinc-800 text-center'>Win Rate</span>
-						<span className='text-xs text-zinc-600 uppercase font-semibold p-4 border-b border-zinc-800 text-right'>μ (Strength)</span>
-						<span className='text-xs text-zinc-600 uppercase font-semibold p-4 border-b border-zinc-800 text-right'>σ (Uncertainty)</span>
-						<span className='text-xs text-zinc-600 uppercase font-semibold p-4 border-b border-zinc-800 text-right'>Rating</span>
+					<div className='contents text-sm text-brand-muted uppercase font-semibold'>
+						<span className='p-4'>#</span>
+						<span className='p-4'>Name</span>
+						<span className='p-4'>Win Rate</span>
+						<span className='p-4'>μ (Strength)</span>
+						<span className='p-4'>σ (Uncertainty)</span>
+						<span className='p-4'>Rating</span>
 					</div>
 
 					{/* Leaderboard Rows */}
 					{leaderboard.map((c, index) => (
-						<Link key={c.id} to={`/competitor/${c.id}`} className={`contents group`}>
+						<Link key={c.id} to={`/competitor/${c.id}`} className={`contents group text-brand-muted text-sm`}>
 							<span
-								className={`text-xs text-zinc-600 p-4 group-hover:bg-clinical-surface transition-colors border-l-2 ${index < 3 ? 'border-rose-500' : 'border-clinical-border'} group-hover:border-rose-500`}>
+								className={`p-4 group-hover:bg-brand-surface transition-colors border-l-2 ${index < 3 ? 'border-brand-highlight' : 'border-brand-border'} group-hover:border-brand-highlight`}>
 								{index + 1}
 							</span>
-							<span className='text-zinc-400 text-left group-hover:text-white group-hover:bg-clinical-surface transition-colors p-4'>{c.name}</span>
-							<div className='flex items-center gap-2 justify-center p-4 group-hover:bg-clinical-surface transition-colors'>
-								<span className='text-xs text-zinc-600'>{c.winRate}%</span>
-								<div className='h-1.5 w-16 bg-zinc-900 border border-zinc-800 overflow-hidden'>
-									<div className='h-full bg-rose-500' style={{ width: `${c.winRate}%` }} />
+							<span className='text-lg text-left text-white group-hover:text-brand-highlight group-hover:bg-brand-surface transition-colors p-4'>{c.name}</span>
+							<div className='flex items-center gap-2 justify-center p-4 group-hover:bg-brand-surface transition-colors'>
+								<span>{c.winRate}%</span>
+								<div className='h-1.5 w-16 bg-brand-surface border border-brand-border overflow-hidden'>
+									<div className='h-full bg-brand-highlight' style={{ width: `${c.winRate}%` }} />
 								</div>
 							</div>
-							<span className='text-xs text-zinc-600 text-right p-4 group-hover:bg-clinical-surface transition-colors'>{c.rating.mu.toFixed(2)}</span>
-							<span className='text-xs text-zinc-700 text-right p-4 group-hover:bg-clinical-surface transition-colors'>{c.rating.sigma.toFixed(2)}</span>
-							<span className={`text-xs font-bold text-right p-4 group-hover:bg-clinical-surface transition-colors ${index < 3 ? 'text-rose-500' : 'text-zinc-500'}`}>
+							<span className='text-right p-4 group-hover:bg-brand-surface transition-colors'>{c.rating.mu.toFixed(2)}</span>
+							<span className='text-right p-4 group-hover:bg-brand-surface transition-colors'>{c.rating.sigma.toFixed(2)}</span>
+							<span className={`font-bold text-right p-4 group-hover:bg-brand-surface transition-colors ${index < 3 ? 'text-brand-highlight' : 'text-brand-muted'}`}>
 								{c.conservativeRating}
 							</span>
 						</Link>

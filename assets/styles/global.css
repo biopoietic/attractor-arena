@@ -1,12 +1,12 @@
 @import 'tailwindcss';
 
 @theme {
-	--color-clinical-red: #f43f5e;
-	--color-clinical-bg: #000000;
-	--color-clinical-surface: #050505;
-	--color-clinical-border: #141414;
-	--color-clinical-text: #ffffff;
-	--color-clinical-muted: #444444;
+	--color-brand-highlight: #ff2056;
+	--color-brand-bg: #000000;
+	--color-brand-surface: #020202;
+	--color-brand-border: #141414;
+	--color-brand-text: #9f9fa9;
+	--color-brand-muted: #444444;
 
 	--font-mono: 'Space Mono', monospace;
 	--font-sans: 'Inter', sans-serif;
@@ -14,7 +14,7 @@
 
 @layer base {
 	body {
-		@apply font-mono bg-clinical-bg text-clinical-text tracking-tighter antialiased overflow-hidden;
+		@apply font-mono bg-brand-bg text-brand-text tracking-tighter antialiased overflow-hidden;
 	}
 
 	::-webkit-scrollbar {
@@ -24,10 +24,10 @@
 		@apply bg-transparent;
 	}
 	::-webkit-scrollbar-thumb {
-		@apply bg-clinical-border;
+		@apply bg-brand-border;
 	}
 	::-webkit-scrollbar-thumb:hover {
-		@apply bg-clinical-red;
+		@apply bg-brand-highlight;
 	}
 }
 
