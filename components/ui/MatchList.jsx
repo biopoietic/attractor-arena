@@ -1,4 +1,6 @@
-const MatchList = ({ matches, totalMatches, onSelectCompetitor, onLoadMatch }) => {
+import { Link } from 'react-router-dom'
+
+const MatchList = ({ matches, totalMatches }) => {
 	// Get entropy label
 	const getEntropyLabel = (entropy) => {
 		if (entropy < 0.5) return 'Strong'
@@ -7,22 +9,20 @@ const MatchList = ({ matches, totalMatches, onSelectCompetitor, onLoadMatch }) =
 	}
 
 	const Competitor = ({ competitor, match }) => (
-		<button
-			onClick={(e) => {
-				e.stopPropagation()
-				onSelectCompetitor(competitor.id)
-			}}
+		<Link
+			to={`/competitor/${competitor.id}`}
+			onClick={(e) => e.stopPropagation()}
 			className={`text-xs hover:underline ${match.winnerName === competitor.name ? 'text-green-500' : 'text-red-500'}`}>
 			{competitor.name}
-		</button>
+		</Link>
 	)
 
 	return (
 		<div className='space-y-px'>
 			{matches.map((m, i) => (
-				<button
+				<Link
 					key={m.timestamp + i}
-					onClick={() => onLoadMatch(m)}
+					to={`/match/${m.matchId}`}
 					className='w-full border-b border-zinc-900 bg-black transition-all hover:bg-zinc-900/5 py-5 px-4 flex justify-between items-center text-left'>
 					<div className='flex flex-col gap-2'>
 						<div className='flex gap-2 text-xs'>
@@ -41,7 +41,7 @@ const MatchList = ({ matches, totalMatches, onSelectCompetitor, onLoadMatch }) =
 						</span>
 						<span className='text-xs text-zinc-800'>{new Date(m.timestamp).toLocaleDateString()}</span>
 					</div>
-				</button>
+				</Link>
 			))}
 			{matches.length === 0 && (
 				<div className='py-10 text-center'>
