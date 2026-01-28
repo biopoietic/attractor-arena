@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
+import { TournamentProvider } from './contexts/Tournament'
 import HomePage from './pages/HomePage'
 import CompetitorPage, { loader as competitorLoader } from './pages/CompetitorPage'
 import MatchPage, { loader as matchLoader } from './pages/MatchPage'
@@ -26,6 +27,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
 	<React.StrictMode>
-		<RouterProvider router={router} />
+		<TournamentProvider>
+			<RouterProvider router={router} />
+		</TournamentProvider>
 	</React.StrictMode>,
 )

@@ -1,5 +1,6 @@
 import { Link, useLoaderData } from 'react-router-dom'
 import { X, History, ChevronDown } from 'lucide-react'
+import { useTournament } from '../contexts/Tournament'
 import Page from '../components/layout/Page'
 import Panel from '../components/ui/Panel'
 import CompetitorCard from '../components/ui/CompetitorCard'
@@ -8,32 +9,13 @@ import MatchList from '../components/ui/MatchList'
 // Loader for competitor data
 export const loader = async ({ params }) => {
 	try {
-		const [competitorMd, leaderboard] = await Promise.all([import(`../competitors/${params.id}.md?raw`), import('../data/leaderboard.json')])
-
-		const leaderboardData = leaderboard.default
-		const { competitors, recentMatches, totalMatches } = leaderboardData
-
-		// Find competitor
-		const competitor = competitors.find((c) => c.id === params.id)
-		if (!competitor) {
-			return { competitor: null, markdown: null, rank: null, matches: [], totalMatches }
-		}
-
-		// Get rank
-		const rank = competitors.findIndex((c) => c.id === params.id) + 1
-
-		// Filter matches for this competitor
-		const matches = recentMatches.filter((m) => m.competitorA.id === params.id || m.competitorB.id === params.id)
-
+		const competitorMd = await import(`../competitors/${params.id}.md?raw`)
 		return {
-			competitor,
+			competitorId: params.id,
 			markdown: competitorMd.default,
-			rank,
-			matches,
-			totalMatches,
 		}
 	} catch (error) {
-		return { competitor: null, markdown: null, rank: null, matches: [], totalMatches: 0 }
+		return { competitorId: params.id, markdown: null }
 	}
 }
 
@@ -55,7 +37,12 @@ const CompetitorMatchesSidebar = ({ matches, totalMatches }) => {
 }
 
 const CompetitorPage = () => {
-	const { competitor, rank, matches, totalMatches } = useLoaderData()
+	const { competitorId, markdown } = useLoaderData()
+	const { getCompetitor, getCompetitorRank, getCompetitorMatches, totalMatches } = useTournament()
+	
+	const competitor = getCompetitor(competitorId)
+	const rank = getCompetitorRank(competitorId)
+	const matches = getCompetitorMatches(competitorId)
 
 	if (!competitor) {
 		return (
@@ -81,7 +68,7 @@ const CompetitorPage = () => {
 						</Link>
 					</div>
 				}>
-				<CompetitorCard competitor={competitor} rank={rank} onViewProfile={() => {}} />
+				<CompetitorCard competitor={competitor} rank={rank} />
 			</Panel>
 		</Page>
 	)

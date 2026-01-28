@@ -99,10 +99,9 @@ export function saveMatchFile(matchesDir, matchId, matchData) {
  * @param {Array} competitors - All competitors
  * @param {Object} ratings - Rating data by competitor ID
  * @param {Array} matches - All matches
- * @param {number} recentMatchCount - Number of recent matches to include
  * @returns {Object} - Leaderboard structure
  */
-export function buildLeaderboardData(competitors, ratings, matches, recentMatchCount = 50) {
+export function buildLeaderboardData(competitors, ratings, matches) {
 	// Build competitor data with ratings
 	const competitorData = competitors.map((c) => {
 		const rating = ratings[c.id] || { mu: 0, sigma: 1.5, matches: 0, wins: 0, losses: 0 }
@@ -130,42 +129,14 @@ export function buildLeaderboardData(competitors, ratings, matches, recentMatchC
 		return conservativeB - conservativeA
 	})
 
-	// Get recent matches with names
-	const competitorMap = Object.fromEntries(competitors.map((c) => [c.id, c]))
-	const recentMatches = matches
-		.slice(-recentMatchCount)
-		.reverse()
-		.map((m) => ({
-			matchId: m.matchId,
-			competitorA: {
-				id: m.competitorA,
-				name: competitorMap[m.competitorA]?.name || m.competitorA,
-			},
-			competitorB: {
-				id: m.competitorB,
-				name: competitorMap[m.competitorB]?.name || m.competitorB,
-			},
-			winnerId: m.winner,
-			winnerName: competitorMap[m.winner]?.name || m.winner,
-			scoreA: m.scoreA,
-			scoreB: m.scoreB,
-			totalEvaluations: m.totalEvaluations,
-			entropy: Math.round(m.entropy * 100) / 100,
-			timestamp: m.timestamp,
-			judgeVersion: m.judgeVersion,
-		}))
-
 	// Calculate average rating across all competitors
-	const avgRating = competitorData.length
-		? Math.round((competitorData.reduce((acc, c) => acc + c.rating.mu, 0) / competitorData.length) * 100) / 100
-		: 0
+	const avgRating = competitorData.length ? Math.round((competitorData.reduce((acc, c) => acc + c.rating.mu, 0) / competitorData.length) * 100) / 100 : 0
 
 	return {
 		generatedAt: new Date().toISOString(),
 		totalMatches: matches.length,
 		avgRating,
 		competitors: competitorData,
-		recentMatches,
 	}
 }
 
@@ -184,9 +155,6 @@ export function writePublicData(publicDir, competitors, ratings, matches) {
 	// Build leaderboard data (contains competitors with ratings)
 	const leaderboardData = buildLeaderboardData(competitors, ratings, matches)
 	fs.writeFileSync(path.join(publicDir, 'leaderboard.json'), JSON.stringify(leaderboardData, null, 2))
-
-	// Note: matches.jsonl is the source of truth (JSONL format for efficient appending)
-	// Frontend uses leaderboard.json (which includes recent matches) and individual match files
 
 	return { leaderboardData }
 }

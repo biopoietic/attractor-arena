@@ -1,15 +1,13 @@
 import { Link } from 'react-router-dom'
 import { Database, History, ChevronDown } from 'lucide-react'
 
-import leaderboardData from '../data/leaderboard.json'
+import { useTournament } from '../contexts/Tournament'
 import Page from '../components/layout/Page'
 import Panel from '../components/ui/Panel'
 import CompetitorCard from '../components/ui/CompetitorCard'
 import MatchList from '../components/ui/MatchList'
 
-const { competitors, recentMatches, totalMatches } = leaderboardData
-
-const RecentMatchesSidebar = () => (
+const RecentMatchesSidebar = ({ recentMatches, totalMatches }) => (
 	<section className='flex-1 flex flex-col'>
 		<div className='flex items-center justify-between mb-8'>
 			<div className='flex items-center gap-3'>
@@ -25,12 +23,15 @@ const RecentMatchesSidebar = () => (
 )
 
 const HomePage = () => {
+	const { competitors, totalMatches, getRecentMatches } = useTournament()
+	const recentMatches = getRecentMatches()
+	
 	// Leaderboard data is pre-sorted by conservative rating (mu - 3*sigma)
 	const leaderboard = competitors.slice(0, 15)
 	const currentLeader = competitors.length > 0 ? competitors[0] : null
 
 	return (
-		<Page sidebar={<RecentMatchesSidebar />}>
+		<Page sidebar={<RecentMatchesSidebar recentMatches={recentMatches} totalMatches={totalMatches} />}>
 			{/* Current Leader Highlight */}
 			{currentLeader && (
 				<Panel

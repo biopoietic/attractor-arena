@@ -1,10 +1,10 @@
+import { useTournament } from '../../contexts/Tournament'
+
 import Header from './Header'
 import Footer from './Footer'
 
-import leaderboardData from '../../data/leaderboard.json'
-
 const Page = ({ children, sidebar }) => {
-	const { competitors, totalMatches, avgRating, generatedAt } = leaderboardData
+	const { competitors, totalMatches, avgRating, generatedAt } = useTournament()
 
 	return (
 		<div className='h-screen flex flex-col overflow-hidden'>
