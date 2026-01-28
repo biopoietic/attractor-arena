@@ -14,7 +14,7 @@
 
 @layer base {
 	body {
-		@apply font-mono bg-brand-bg text-brand-text tracking-tighter antialiased overflow-hidden;
+		@apply font-mono bg-brand-bg text-brand-text antialiased overflow-hidden;
 	}
 
 	::-webkit-scrollbar {

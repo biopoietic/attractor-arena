@@ -11,7 +11,7 @@ const CompetitorCard = ({ competitor, rank }) => {
 						<div className='h-4 w-px bg-brand-muted' />
 						<span className='text-brand-muted'>{competitor.matches} Evaluations</span>
 					</div>
-					<h4 className='text-4xl font-bold uppercase tracking-tighter text-brand-highlight mb-3'>{competitor.name}</h4>
+					<h4 className='text-4xl font-bold uppercase text-brand-highlight mb-3'>{competitor.name}</h4>
 					<div className='flex items-center gap-4'>
 						<div className='flex items-center gap-2'>
 							<TrendingUp size={16} className='text-emerald-500' />

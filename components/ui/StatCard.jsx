@@ -6,7 +6,7 @@ const StatCard = ({ label, value, variant = 'default', className = '', children 
 
 	return (
 		<div className={`bg-brand-surface border border-brand-border p-4 ${className}`}>
-			<span className='text-sm text-brand-muted uppercase tracking-wider block mb-2'>{label}</span>
+			<span className='text-sm text-brand-muted uppercase tracking-widest block mb-2'>{label}</span>
 			<p className={`text-xl font-semibold tabular-nums ${getValueColor()}`}>{value}</p>
 
 			{children}
