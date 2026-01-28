@@ -1,29 +1,43 @@
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLoaderData } from 'react-router-dom'
 import { X, History, ChevronDown } from 'lucide-react'
-import leaderboardData from '../data/leaderboard.json'
 import Page from '../components/layout/Page'
 import Panel from '../components/ui/Panel'
 import CompetitorCard from '../components/ui/CompetitorCard'
 import MatchList from '../components/ui/MatchList'
 
-const { competitors, recentMatches, totalMatches } = leaderboardData
+// Loader for competitor data
+export const loader = async ({ params }) => {
+	try {
+		const [competitorMd, leaderboard] = await Promise.all([import(`../competitors/${params.id}.md?raw`), import('../data/leaderboard.json')])
 
-// Create lookup map for quick access
-const competitorMap = Object.fromEntries(competitors.map((c) => [c.id, c]))
+		const leaderboardData = leaderboard.default
+		const { competitors, recentMatches, totalMatches } = leaderboardData
 
-// Get rank for a competitor
-const getRank = (competitorId) => {
-	return competitors.findIndex((c) => c.id === competitorId) + 1
+		// Find competitor
+		const competitor = competitors.find((c) => c.id === params.id)
+		if (!competitor) {
+			return { competitor: null, markdown: null, rank: null, matches: [], totalMatches }
+		}
+
+		// Get rank
+		const rank = competitors.findIndex((c) => c.id === params.id) + 1
+
+		// Filter matches for this competitor
+		const matches = recentMatches.filter((m) => m.competitorA.id === params.id || m.competitorB.id === params.id)
+
+		return {
+			competitor,
+			markdown: competitorMd.default,
+			rank,
+			matches,
+			totalMatches,
+		}
+	} catch (error) {
+		return { competitor: null, markdown: null, rank: null, matches: [], totalMatches: 0 }
+	}
 }
 
-// Filter matches for a specific competitor
-const getCompetitorMatches = (competitorId) => {
-	return recentMatches.filter((m) => m.competitorA.id === competitorId || m.competitorB.id === competitorId)
-}
-
-const CompetitorMatchesSidebar = ({ competitorId }) => {
-	const matches = getCompetitorMatches(competitorId)
-
+const CompetitorMatchesSidebar = ({ matches, totalMatches }) => {
 	return (
 		<section className='flex-1 flex flex-col'>
 			<div className='flex items-center justify-between mb-8'>
@@ -41,8 +55,7 @@ const CompetitorMatchesSidebar = ({ competitorId }) => {
 }
 
 const CompetitorPage = () => {
-	const { id } = useParams()
-	const competitor = competitorMap[id]
+	const { competitor, rank, matches, totalMatches } = useLoaderData()
 
 	if (!competitor) {
 		return (
@@ -55,7 +68,7 @@ const CompetitorPage = () => {
 	}
 
 	return (
-		<Page sidebar={<CompetitorMatchesSidebar competitorId={id} />}>
+		<Page sidebar={<CompetitorMatchesSidebar matches={matches} totalMatches={totalMatches} />}>
 			<Panel
 				header={
 					<div className='flex items-center justify-between gap-3'>
@@ -68,7 +81,7 @@ const CompetitorPage = () => {
 						</Link>
 					</div>
 				}>
-				<CompetitorCard competitor={competitor} rank={getRank(competitor.id)} onViewProfile={() => {}} />
+				<CompetitorCard competitor={competitor} rank={rank} onViewProfile={() => {}} />
 			</Panel>
 		</Page>
 	)

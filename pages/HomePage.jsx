@@ -75,10 +75,10 @@ const HomePage = () => {
 					{leaderboard.map((c, index) => (
 						<Link key={c.id} to={`/competitor/${c.id}`} className={`contents group text-brand-muted text-sm`}>
 							<span
-								className={`p-4 group-hover:bg-brand-surface transition-colors border-l-2 ${index < 3 ? 'border-brand-highlight' : 'border-brand-border'} group-hover:border-brand-highlight`}>
+								className={`p-4 group-hover:bg-brand-surface transition-colors border-l-2 ${index < 3 ? 'border-brand-highlight/50' : 'border-brand-border'} group-hover:border-brand-highlight`}>
 								{index + 1}
 							</span>
-							<span className='text-lg text-left text-white group-hover:text-brand-highlight group-hover:bg-brand-surface transition-colors p-4'>{c.name}</span>
+							<span className='text-lg text-left text-brand-text group-hover:text-brand-highlight group-hover:bg-brand-surface transition-colors p-4'>{c.name}</span>
 							<div className='flex items-center gap-2 justify-center p-4 group-hover:bg-brand-surface transition-colors'>
 								<span>{c.winRate}%</span>
 								<div className='h-1.5 w-16 bg-brand-surface border border-brand-border overflow-hidden'>

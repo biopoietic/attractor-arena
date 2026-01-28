@@ -1,10 +1,19 @@
-import { useState, useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { X, Zap, Users, Loader2 } from 'lucide-react'
+import { Link, useParams, useLoaderData } from 'react-router-dom'
+import { X, Zap, Users } from 'lucide-react'
 
 import leaderboardData from '../data/leaderboard.json'
 import Page from '../components/layout/Page'
 import Panel from '../components/ui/Panel'
+
+// Loader for match data
+export const loader = async ({ params }) => {
+	try {
+		const matchData = await import(`../data/matches/${params.id}.json`)
+		return matchData.default
+	} catch (error) {
+		return null
+	}
+}
 
 // Get entropy label
 const getEntropyLabel = (entropy) => {
@@ -32,30 +41,10 @@ const MatchHeader = ({ displayMatch }) => {
 
 const MatchPage = () => {
 	const { id } = useParams()
-	const [matchData, setMatchData] = useState(null)
-	const [loading, setLoading] = useState(true)
+	const matchData = useLoaderData()
 
 	// Find match in recent matches
 	const matchSummary = leaderboardData.recentMatches.find((m) => m.matchId === id)
-
-	useEffect(() => {
-		const loadMatchData = async () => {
-			setLoading(true)
-			try {
-				const response = await fetch(`/matches/${id}.json`)
-				if (response.ok) {
-					const data = await response.json()
-					setMatchData(data)
-				} else {
-					setMatchData(null)
-				}
-			} catch {
-				setMatchData(null)
-			}
-			setLoading(false)
-		}
-		loadMatchData()
-	}, [id])
 
 	if (!matchSummary && !matchData) {
 		return (
@@ -99,11 +88,7 @@ const MatchPage = () => {
 					</div>
 				</div>
 
-				{loading ? (
-					<div className='flex items-center justify-center py-20'>
-						<Loader2 size={24} className='text-brand-highlight animate-spin' />
-					</div>
-				) : matchData ? (
+				{matchData ? (
 					<>
 						{/* Judge Evaluations */}
 						<div className='mb-8'>

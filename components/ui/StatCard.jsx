@@ -1,7 +1,7 @@
 const StatCard = ({ label, value, variant = 'default', className = '', children }) => {
 	const getValueColor = () => {
 		if (variant === 'primary') return 'text-brand-highlight'
-		return 'text-white'
+		return 'text-brand-text'
 	}
 
 	return (
