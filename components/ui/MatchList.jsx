@@ -1,6 +1,8 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 const MatchList = ({ matches, totalMatches }) => {
+	const navigate = useNavigate()
+
 	// Get entropy label
 	const getEntropyLabel = (entropy) => {
 		if (entropy < 0.5) return 'Strong'
@@ -19,29 +21,29 @@ const MatchList = ({ matches, totalMatches }) => {
 
 	return (
 		<div className='space-y-px'>
-			{matches.map((m, i) => (
-				<Link
-					key={m.timestamp + i}
-					to={`/match/${m.matchId}`}
-					className='w-full border-b border-zinc-900 bg-black transition-all hover:bg-zinc-900/5 py-5 px-4 flex justify-between items-center text-left'>
+			{matches.map((match, i) => (
+				<div
+					key={match.timestamp + i}
+					onClick={() => navigate(`/match/${match.matchId}`)}
+					className='w-full border-b border-zinc-900 transition-all hover:bg-zinc-900/5 py-5 px-4 flex justify-between items-center cursor-pointer'>
 					<div className='flex flex-col gap-2'>
 						<div className='flex gap-2 text-xs'>
 							<span className='text-zinc-500 font-bold'> EVAL_{totalMatches - i}</span>
-							{m.entropy !== undefined && <span className='text-zinc-600'>{getEntropyLabel(m.entropy)}</span>}
+							{match.entropy !== undefined && <span className='text-zinc-600'>{getEntropyLabel(match.entropy)}</span>}
 						</div>
 						<div className='flex items-center gap-2'>
-							<Competitor competitor={m.competitorA} match={m} />
+							<Competitor competitor={match.competitorA} match={match} />
 							<span className='text-xs text-zinc-700'>vs</span>
-							<Competitor competitor={m.competitorB} match={m} />
+							<Competitor competitor={match.competitorB} match={match} />
 						</div>
 					</div>
 					<div className='text-right flex flex-col gap-1'>
 						<span className='text-xs text-zinc-600'>
-							{m.scoreA}-{m.scoreB}
+							{match.scoreA}-{match.scoreB}
 						</span>
-						<span className='text-xs text-zinc-800'>{new Date(m.timestamp).toLocaleDateString()}</span>
+						<span className='text-xs text-zinc-800'>{new Date(match.timestamp).toLocaleDateString()}</span>
 					</div>
-				</Link>
+				</div>
 			))}
 			{matches.length === 0 && (
 				<div className='py-10 text-center'>

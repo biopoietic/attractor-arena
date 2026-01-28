@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { X, Zap, Users, Loader2 } from 'lucide-react'
 import leaderboardData from '../data/leaderboard.json'
+import Page from '../components/layout/Page'
 
 const { recentMatches } = leaderboardData
 
@@ -41,16 +42,18 @@ const MatchPage = () => {
 
 	if (!matchSummary && !matchData) {
 		return (
-			<div className='flex items-center justify-center py-20'>
-				<p className='text-xs text-zinc-700 italic'>Match not found</p>
-			</div>
+			<Page>
+				<div className='flex items-center justify-center py-20'>
+					<p className='text-xs text-zinc-700 italic'>Match not found</p>
+				</div>
+			</Page>
 		)
 	}
 
 	const displayMatch = matchData || matchSummary
 
 	return (
-		<div className=''>
+		<Page>
 			<div className='flex items-start justify-between mb-8'>
 				<div>
 					<span className='text-xs text-zinc-600 uppercase tracking-widest'>Identity_Evaluation</span>
@@ -138,7 +141,7 @@ const MatchPage = () => {
 					<p className='text-xs text-zinc-700 italic'>Failed to load evaluation data</p>
 				</div>
 			)}
-		</div>
+		</Page>
 	)
 }
 

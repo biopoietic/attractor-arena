@@ -1,18 +1,36 @@
 import { Link } from 'react-router-dom'
-import { Database } from 'lucide-react'
+import { Database, History, ChevronDown } from 'lucide-react'
+
 import leaderboardData from '../data/leaderboard.json'
+import Page from '../components/layout/Page'
 import Panel from '../components/ui/Panel'
 import CompetitorCard from '../components/ui/CompetitorCard'
+import MatchList from '../components/ui/MatchList'
 
-const { competitors } = leaderboardData
+const { competitors, recentMatches, totalMatches } = leaderboardData
 
-// Leaderboard data is pre-sorted by conservative rating (mu - 3*sigma)
-const leaderboard = competitors.slice(0, 15)
-const currentLeader = competitors.length > 0 ? competitors[0] : null
+const RecentMatchesSidebar = () => (
+	<section className='flex-1 flex flex-col'>
+		<div className='flex items-center justify-between mb-8'>
+			<div className='flex items-center gap-3'>
+				<History size={16} className='text-zinc-600' />
+				<h2 className='text-sm font-bold text-zinc-400 tracking-widest uppercase'>Recent_Matches</h2>
+			</div>
+			<ChevronDown size={14} className='text-zinc-800' />
+		</div>
+		<div className='overflow-y-auto flex-1 pr-4'>
+			<MatchList matches={recentMatches} totalMatches={totalMatches} />
+		</div>
+	</section>
+)
 
 const HomePage = () => {
+	// Leaderboard data is pre-sorted by conservative rating (mu - 3*sigma)
+	const leaderboard = competitors.slice(0, 15)
+	const currentLeader = competitors.length > 0 ? competitors[0] : null
+
 	return (
-		<>
+		<Page sidebar={<RecentMatchesSidebar />}>
 			{/* Current Leader Highlight */}
 			{currentLeader && (
 				<Panel
@@ -73,7 +91,7 @@ const HomePage = () => {
 					))}
 				</div>
 			</section>
-		</>
+		</Page>
 	)
 }
 
