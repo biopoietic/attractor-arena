@@ -51,12 +51,13 @@ const HomePage = () => {
 			)}
 
 			{/* Leaderboard */}
-			<section>
-				<div className='flex items-center gap-2 mb-6'>
-					<Database size={14} className='text-zinc-600' />
-					<h2 className='text-sm font-bold text-zinc-500 tracking-widest uppercase'>Leaderboard</h2>
-				</div>
-
+			<Panel
+				header={
+					<div className='flex items-center gap-2'>
+						<Database size={14} className='text-zinc-600' />
+						<span className='text-xs font-bold uppercase tracking-[0.4em] text-zinc-500'>Leaderboard</span>
+					</div>
+				}>
 				<div className='grid grid-cols-[auto_1fr_auto_auto_auto_auto]'>
 					{/* Column Headers */}
 					<div className='contents'>
@@ -90,7 +91,7 @@ const HomePage = () => {
 						</Link>
 					))}
 				</div>
-			</section>
+			</Panel>
 		</Page>
 	)
 }
