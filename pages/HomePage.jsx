@@ -27,7 +27,7 @@ const HomePage = () => {
 	const recentMatches = getRecentMatches()
 
 	// Leaderboard data is pre-sorted by conservative rating (mu - 3*sigma)
-	const leaderboard = competitors.slice(0, 15)
+	const leaderboard = competitors.slice(0, 100)
 	const currentLeader = competitors.length > 0 ? competitors[0] : null
 
 	return (
@@ -59,12 +59,13 @@ const HomePage = () => {
 						<span>Leaderboard</span>
 					</div>
 				}>
-				<div className='grid grid-cols-[auto_1fr_auto_auto_auto_auto] gap-4'>
+				<div className='grid grid-cols-[auto_1fr_auto_auto_auto_auto_auto] gap-4'>
 					{/* Column Headers */}
 					<div className='contents h4'>
 						<span className='pl-4'>#</span>
 						<span>Name</span>
 						<span>Win_Rate</span>
+						<span className='text-right'>Matches</span>
 						<span className='text-right'>Strength (μ)</span>
 						<span className='text-right'>Uncertainty (σ)</span>
 						<span className='text-right'>Rating</span>
@@ -83,6 +84,7 @@ const HomePage = () => {
 									<div className='h-full bg-brand-highlight' style={{ width: `${c.winRate}%` }} />
 								</div>
 							</div>
+							<span className='text-right'>{c.matches}</span>
 							<span className='text-right'>{c.rating.mu.toFixed(2)}</span>
 							<span className='text-right'>{c.rating.sigma.toFixed(2)}</span>
 							<span className={`text-right font-bold ${index < 3 ? 'text-brand-highlight' : 'text-brand-muted'}`}>{c.conservativeRating}</span>
