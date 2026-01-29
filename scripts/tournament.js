@@ -16,6 +16,7 @@ const MATCHES_DIR = path.join(__dirname, '../data/matches')
 
 const DEFAULT_BUDGET = 20
 const DEFAULT_JUDGE_VERSION = 'v2.0-panel'
+const DEFAULT_CONCURRENCY = 5 // Number of matches to run in parallel
 
 // Panel of judges for revealed-preference evaluation
 const JUDGE_PANEL = ['anthropic/claude-sonnet-4', 'openai/gpt-4.1', 'google/gemini-2.5-flash']
@@ -188,11 +189,13 @@ async function main() {
 		options: {
 			budget: { type: 'string', short: 'b', default: String(DEFAULT_BUDGET) },
 			'judge-version': { type: 'string', short: 'j', default: DEFAULT_JUDGE_VERSION },
+			concurrency: { type: 'string', short: 'c', default: String(DEFAULT_CONCURRENCY) },
 		},
 	})
 
 	const budget = parseInt(values.budget, 10)
 	const judgeVersion = values['judge-version']
+	const concurrency = parseInt(values.concurrency, 10)
 
 	console.log('\n\u2554' + '\u2550'.repeat(64) + '\u2557')
 	console.log('\u2551              ATTRACTOR ARENA - IDENTITY PREFERENCE             \u2551')
@@ -200,6 +203,7 @@ async function main() {
 
 	console.log(`Configuration:`)
 	console.log(`  Budget:        ${budget} matches`)
+	console.log(`  Concurrency:   ${concurrency} parallel matches`)
 	console.log(`  Judge Version: ${judgeVersion}`)
 	console.log(`  Judge Panel:   ${JUDGE_PANEL.length} judges x 2 orderings = ${JUDGE_PANEL.length * 2} evaluations per match`)
 	console.log(`  Judges:        ${JUDGE_PANEL.join(', ')}\n`)
@@ -253,32 +257,59 @@ async function main() {
 
 	const seed = Date.now()
 	let matchesCompleted = 0
+	const completedMatches = []
 
-	for (const [idA, idB] of matchQueue) {
-		const compA = competitorMap[idA]
-		const compB = competitorMap[idB]
+	// Process matches in parallel batches
+	for (let i = 0; i < matchQueue.length; i += concurrency) {
+		const batch = matchQueue.slice(i, i + concurrency)
 
-		if (!compA || !compB) {
-			console.warn(`Skipping invalid pair: ${idA} vs ${idB}`)
-			continue
-		}
+		const batchPromises = batch.map(async ([idA, idB], batchIndex) => {
+			const compA = competitorMap[idA]
+			const compB = competitorMap[idB]
 
-		console.log(`${formatProgress(matchesCompleted + 1, matchQueue.length)}`)
-		console.log(`  ${compA.name} vs ${compB.name}`)
+			if (!compA || !compB) {
+				console.warn(`Skipping invalid pair: ${idA} vs ${idB}`)
+				return null
+			}
 
-		try {
-			const result = await runPanelEvaluation(compA, compB, JUDGE_PANEL)
+			const matchNumber = i + batchIndex + 1
+			console.log(`${formatProgress(matchNumber, matchQueue.length)}`)
+			console.log(`  ${compA.name} vs ${compB.name}`)
 
-			const winnerName = result.winnerId === compA.id ? compA.name : compB.name
-			console.log(`  Result: ${result.scoreA}-${result.scoreB} (entropy: ${result.entropy.toFixed(2)})`)
-			console.log(`  Preferred: ${winnerName}\n`)
+			try {
+				const result = await runPanelEvaluation(compA, compB, JUDGE_PANEL)
 
-			const timestamp = new Date().toISOString()
+				const winnerName = result.winnerId === compA.id ? compA.name : compB.name
+				console.log(`  Result: ${result.scoreA}-${result.scoreB} (entropy: ${result.entropy.toFixed(2)})`)
+				console.log(`  Preferred: ${winnerName}\n`)
 
-			// Generate match ID from timestamp
-			const matchId = timestamp.replace(/[:.]/g, '-')
+				const timestamp = new Date().toISOString()
+				const matchId = timestamp.replace(/[:.]/g, '-')
 
-			// Save full match file with all judge evaluations
+				return {
+					compA,
+					compB,
+					result,
+					winnerName,
+					timestamp,
+					matchId,
+				}
+			} catch (error) {
+				console.error(`  Error: ${error.message}\n`)
+				return null
+			}
+		})
+
+		// Wait for all matches in batch to complete
+		const batchResults = await Promise.all(batchPromises)
+
+		// Process results and write files in batch
+		for (const matchResult of batchResults) {
+			if (!matchResult) continue
+
+			const { compA, compB, result, winnerName, timestamp, matchId } = matchResult
+
+			// Save full match file
 			const fullMatchData = {
 				id: matchId,
 				timestamp,
@@ -306,7 +337,7 @@ async function main() {
 			}
 			saveMatchFile(MATCHES_DIR, matchId, fullMatchData)
 
-			// Append to JSONL (summary for quick loading)
+			// Create match record
 			const matchRecord = {
 				competitorA: compA.id,
 				competitorB: compB.id,
@@ -321,8 +352,9 @@ async function main() {
 				timestamp,
 			}
 			appendMatch(MATCHES_FILE, matchRecord)
+			completedMatches.push(matchRecord)
 
-			// Update in-memory ratings using Bradley-Terry update
+			// Update in-memory ratings
 			const winnerId = result.winnerId
 			const loserId = winnerId === compA.id ? compB.id : compA.id
 			const winnerScore = winnerId === compA.id ? result.scoreA : result.scoreB
@@ -347,30 +379,35 @@ async function main() {
 			ratings[loserId].losses += winnerScore
 
 			matchesCompleted++
-		} catch (error) {
-			console.error(`  Error: ${error.message}\n`)
+		}
+
+		// Update leaderboard after each batch (not after each match)
+		if (completedMatches.length > 0) {
+			const allMatches = [...existingMatches, ...completedMatches]
+			writePublicData(DATA_DIR, competitors, ratings, allMatches)
 		}
 	}
 
-	// Regenerate public data
+	// Final summary
 	console.log('\u2550'.repeat(60))
-	console.log('GENERATING PUBLIC DATA')
+	console.log('TOURNAMENT COMPLETE')
 	console.log('\u2550'.repeat(60) + '\n')
 
-	const allMatches = loadMatches(MATCHES_FILE)
-	const finalRatings = computeAllRatings(allMatches, competitorIds)
-	const { leaderboardData } = writePublicData(DATA_DIR, competitors, finalRatings, allMatches)
-
 	console.log(`Matches completed: ${matchesCompleted}`)
-	console.log(`Total matches:     ${allMatches.length}`)
-	console.log(`\nPublic data written to ${DATA_DIR}`)
-	console.log(`  - leaderboard.json`)
-	console.log(`  - matches.jsonl (source of truth)`)
-	console.log(`  - matches/*.json (individual match details)`)
+	console.log(`Total matches:     ${existingMatches.length + matchesCompleted}`)
+	console.log(`\nLeaderboard updated after each match`)
 
 	// Show top 5
 	console.log('\nTop 5 Competitors:')
-	leaderboardData.competitors.slice(0, 5).forEach((c, i) => {
+	const sortedCompetitors = competitors
+		.map((c) => ({
+			...c,
+			rating: ratings[c.id],
+			conservativeRating: ratings[c.id].mu - 3 * ratings[c.id].sigma,
+		}))
+		.sort((a, b) => b.conservativeRating - a.conservativeRating)
+
+	sortedCompetitors.slice(0, 5).forEach((c, i) => {
 		const conservativeRating = (c.rating.mu - 3 * c.rating.sigma).toFixed(1)
 		console.log(`  ${i + 1}. ${c.name} (\u03bc=${c.rating.mu.toFixed(1)}, \u03c3=${c.rating.sigma.toFixed(1)}, CR=${conservativeRating})`)
 	})
