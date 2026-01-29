@@ -19,7 +19,7 @@ const DEFAULT_JUDGE_VERSION = 'v2.0-panel'
 const DEFAULT_CONCURRENCY = 5 // Number of matches to run in parallel
 
 // Panel of judges for revealed-preference evaluation
-const JUDGE_PANEL = ['anthropic/claude-sonnet-4', 'openai/gpt-4.1', 'google/gemini-2.5-flash']
+const JUDGE_PANEL = ['deepseek/deepseek-v3.2', 'x-ai/grok-4.1-fast', 'google/gemini-2.5-flash']
 
 const JUDGE_SYSTEM_PROMPT = `You are participating in an identity preference experiment.
 
