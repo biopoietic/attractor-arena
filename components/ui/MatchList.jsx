@@ -26,7 +26,7 @@ const MatchList = ({ matches, totalMatches }) => {
 					key={match.timestamp + i}
 					onClick={() => navigate(`/match/${match.matchId}`)}
 					className='w-full border-b border-brand-border transition-all hover:bg-brand-surface py-5 px-4 flex justify-between items-center cursor-pointer'>
-					<div className='flex flex-col gap-2'>
+					<div className='flex flex-col gap-1'>
 						<div className='flex gap-2'>
 							<span className='font-semibold'>EVAL_{totalMatches - i}</span>
 							{match.entropy !== undefined && <span>{getEntropyLabel(match.entropy)}</span>}

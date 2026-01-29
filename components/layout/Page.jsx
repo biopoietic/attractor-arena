@@ -13,7 +13,7 @@ const Page = ({ children, sidebar }) => {
 			<Header competitors={competitors} totalMatches={totalMatches} avgRating={avgRating} />
 
 			{/* Main Wide Application Shell */}
-			<main className={`flex-1 overflow-hidden grid grid-cols-1 ${sidebar ? 'lg:grid-cols-[1fr_32rem]' : ''} h-full relative z-10`}>
+			<main className={`flex-1 overflow-hidden grid grid-cols-1 ${sidebar ? 'lg:grid-cols-[1fr_36rem]' : ''} h-full relative z-10`}>
 				<aside className='overflow-y-auto p-10 flex flex-col gap-12'>{children}</aside> {/* Sidebar */}
 				{sidebar && <aside className='overflow-y-auto p-10 flex flex-col gap-16 bg-brand-surface border-l border-brand-border'>{sidebar}</aside>}
 			</main>
