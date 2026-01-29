@@ -18,11 +18,7 @@ const DEFAULT_BUDGET = 20
 const DEFAULT_JUDGE_VERSION = 'v2.0-panel'
 
 // Panel of judges for revealed-preference evaluation
-const JUDGE_PANEL = [
-	'anthropic/claude-sonnet-4',
-	'openai/gpt-4.1',
-	'google/gemini-2.5-flash',
-]
+const JUDGE_PANEL = ['anthropic/claude-sonnet-4', 'openai/gpt-4.1', 'google/gemini-2.5-flash']
 
 const JUDGE_SYSTEM_PROMPT = `You are participating in an identity preference experiment.
 
@@ -95,10 +91,7 @@ function parseJudgeResponse(judgeText) {
 async function runJudgeEvaluation(identityA, identityB, judgeModel) {
 	const llm = createOpenRouterLLM(judgeModel)
 
-	const response = await llm.invoke([
-		new SystemMessage(JUDGE_SYSTEM_PROMPT),
-		new HumanMessage(buildIdentityPrompt(identityA, identityB)),
-	])
+	const response = await llm.invoke([new SystemMessage(JUDGE_SYSTEM_PROMPT), new HumanMessage(buildIdentityPrompt(identityA, identityB))])
 
 	const responseText = typeof response.content === 'string' ? response.content : '{}'
 	const parsed = parseJudgeResponse(responseText)
@@ -129,46 +122,43 @@ async function runJudgeEvaluation(identityA, identityB, judgeModel) {
  * @returns {Object} - Full evaluation results
  */
 async function runPanelEvaluation(competitorA, competitorB, judgePanel) {
-	const evaluations = []
-
-	for (const judgeModel of judgePanel) {
+	// Run all judge evaluations in parallel
+	const evaluationPromises = judgePanel.flatMap((judgeModel) => [
 		// Evaluation 1: A presented first, B presented second
-		const evalAB = await runJudgeEvaluation(
+		runJudgeEvaluation(
 			{ name: competitorA.name, justification: competitorA.justification },
 			{ name: competitorB.name, justification: competitorB.justification },
-			judgeModel
-		)
-		evaluations.push({
+			judgeModel,
+		).then((evalAB) => ({
 			...evalAB,
 			ordering: 'AB',
 			selectedId: evalAB.choice === 'A' ? competitorA.id : competitorB.id,
-		})
+		})),
 
 		// Evaluation 2: B presented first, A presented second
-		const evalBA = await runJudgeEvaluation(
+		runJudgeEvaluation(
 			{ name: competitorB.name, justification: competitorB.justification },
 			{ name: competitorA.name, justification: competitorA.justification },
-			judgeModel
-		)
-		evaluations.push({
+			judgeModel,
+		).then((evalBA) => ({
 			...evalBA,
 			ordering: 'BA',
 			// In BA ordering, 'A' means B was selected, 'B' means A was selected
 			selectedId: evalBA.choice === 'A' ? competitorB.id : competitorA.id,
-		})
-	}
+		})),
+	])
+
+	const evaluations = await Promise.all(evaluationPromises)
 
 	// Tally scores
-	const scoreA = evaluations.filter(e => e.selectedId === competitorA.id).length
-	const scoreB = evaluations.filter(e => e.selectedId === competitorB.id).length
+	const scoreA = evaluations.filter((e) => e.selectedId === competitorA.id).length
+	const scoreB = evaluations.filter((e) => e.selectedId === competitorB.id).length
 	const totalEvaluations = evaluations.length
 
 	// Calculate entropy (measure of disagreement)
 	const pA = scoreA / totalEvaluations
 	const pB = scoreB / totalEvaluations
-	const entropy = pA > 0 && pB > 0
-		? -(pA * Math.log2(pA) + pB * Math.log2(pB))
-		: 0
+	const entropy = pA > 0 && pB > 0 ? -(pA * Math.log2(pA) + pB * Math.log2(pB)) : 0
 
 	return {
 		competitorA,
@@ -343,7 +333,7 @@ async function main() {
 				{ mu: ratings[loserId].mu, sigma: ratings[loserId].sigma },
 				winnerScore,
 				loserScore,
-				result.totalEvaluations
+				result.totalEvaluations,
 			)
 			ratings[winnerId].mu = updated.winner.mu
 			ratings[winnerId].sigma = updated.winner.sigma
