@@ -39,7 +39,7 @@
 	}
 
 	.h1 {
-		@apply text-4xl font-bold uppercase text-brand-highlight tracking-widest mb-3;
+		@apply text-4xl lg:text-4xl font-bold uppercase text-brand-highlight tracking-widest mb-3;
 	}
 	.h2 {
 		@apply text-xl uppercase font-bold text-brand-highlight tracking-wider mb-3;

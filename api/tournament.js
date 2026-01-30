@@ -82,6 +82,7 @@ export const tournamentLoader = () => {
 	return {
 		competitors: leaderboardData.competitors,
 		totalMatches: leaderboardData.totalMatches,
+		totalEvaluations: leaderboardData.totalEvaluations,
 		avgRating: leaderboardData.avgRating,
 		generatedAt: leaderboardData.generatedAt,
 		matches: enrichedMatches,

@@ -206,12 +206,14 @@ async function main() {
 			budget: { type: 'string', short: 'b', default: String(DEFAULT_BUDGET) },
 			'judge-version': { type: 'string', short: 'j', default: DEFAULT_JUDGE_VERSION },
 			concurrency: { type: 'string', short: 'c', default: String(DEFAULT_CONCURRENCY) },
+			'rebuild-leaderboard': { type: 'boolean', short: 'r', default: false },
 		},
 	})
 
 	const budget = parseInt(values.budget, 10)
 	const judgeVersion = values['judge-version']
 	const concurrency = parseInt(values.concurrency, 10)
+	const rebuildLeaderboard = values['rebuild-leaderboard']
 
 	console.log('\n\u2554' + '\u2550'.repeat(64) + '\u2557')
 	console.log('\u2551              ATTRACTOR ARENA - IDENTITY PREFERENCE             \u2551')
@@ -242,6 +244,15 @@ async function main() {
 	console.log('Computing ratings...')
 	const competitorIds = competitors.map((c) => c.id)
 	const ratings = computeAllRatings(existingMatches, competitorIds)
+
+	// If rebuild-leaderboard flag is set, just regenerate and exit
+	if (rebuildLeaderboard) {
+		console.log('Rebuilding leaderboard from existing data...')
+		writePublicData(DATA_DIR, competitors, ratings, existingMatches)
+		console.log(`\nLeaderboard data written to ${DATA_DIR}/leaderboard.json`)
+		console.log('Rebuild complete!\n')
+		return
+	}
 
 	// Show needs analysis
 	const needs = identifyNeedsMatches(competitors, ratings, existingMatches)

@@ -135,9 +135,13 @@ export function buildLeaderboardData(competitors, ratings, matches) {
 	// Calculate average rating across all competitors
 	const avgRating = competitorData.length ? Math.round((competitorData.reduce((acc, c) => acc + c.rating.mu, 0) / competitorData.length) * 100) / 100 : 0
 
+	// Calculate total evaluations across all competitors
+	const totalEvaluations = competitorData.reduce((acc, c) => acc + c.totalEvaluations, 0)
+
 	return {
 		generatedAt: new Date().toISOString(),
 		totalMatches: matches.length,
+		totalEvaluations,
 		avgRating,
 		competitors: competitorData,
 	}
