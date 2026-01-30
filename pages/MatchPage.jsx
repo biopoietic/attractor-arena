@@ -4,12 +4,14 @@ import { X, Zap, Users, TrendingUp } from 'lucide-react'
 import Page from '../components/layout/Page'
 import Panel from '../components/ui/Panel'
 
-// Loader for match data
+/**
+ * Match page loader - loads match detail data
+ */
 export const loader = async ({ params }) => {
 	try {
 		const matchData = await import(`../data/matches/${params.id}.json`)
 		return matchData.default
-	} catch (error) {
+	} catch {
 		return null
 	}
 }

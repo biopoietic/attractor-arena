@@ -1,7 +1,6 @@
-import { Link } from 'react-router-dom'
+import { Link, useRouteLoaderData } from 'react-router-dom'
 import { User, Database, History, ChevronDown } from 'lucide-react'
 
-import { useTournament } from '../contexts/Tournament'
 import Page from '../components/layout/Page'
 import Panel from '../components/ui/Panel'
 import CompetitorCard from '../components/ui/CompetitorCard'
@@ -24,8 +23,7 @@ const RecentMatchesSidebar = ({ recentMatches, totalMatches }) => (
 )
 
 const HomePage = () => {
-	const { competitors, totalMatches, getRecentMatches } = useTournament()
-	const recentMatches = getRecentMatches()
+	const { competitors, totalMatches, recentMatches } = useRouteLoaderData('root')
 
 	// Leaderboard data is pre-sorted by conservative rating (mu - 3*sigma)
 	const leaderboard = competitors.slice(0, 100)

@@ -1,10 +1,10 @@
-import { useTournament } from '../../contexts/Tournament'
+import { useRouteLoaderData } from 'react-router-dom'
 
 import Header from './Header'
 import Footer from './Footer'
 
 const Page = ({ children, sidebar }) => {
-	const { competitors, totalMatches, avgRating, generatedAt } = useTournament()
+	const { competitors, totalMatches, avgRating, generatedAt } = useRouteLoaderData('root')
 
 	return (
 		<div className='h-screen flex flex-col overflow-hidden'>

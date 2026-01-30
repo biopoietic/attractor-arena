@@ -1,21 +1,41 @@
 import { Link, useLoaderData } from 'react-router-dom'
 import { X, History, ChevronDown, User, FileText } from 'lucide-react'
-import { useTournament } from '../contexts/Tournament'
+
 import Page from '../components/layout/Page'
 import Panel from '../components/ui/Panel'
 import CompetitorCard from '../components/ui/CompetitorCard'
 import MatchList from '../components/ui/MatchList'
+import { tournamentLoader, getCompetitor, getCompetitorRank, getCompetitorMatches } from '../api/tournament'
 
-// Loader for competitor data
+/**
+ * Competitor page loader - loads competitor markdown and data
+ */
 export const loader = async ({ params }) => {
+	const competitorId = params.id
+
+	// Load tournament data directly (will be cached by React Router)
+	const { competitors, matches, totalMatches } = tournamentLoader()
+
+	const competitor = getCompetitor(competitors, competitorId)
+	const rank = getCompetitorRank(competitors, competitorId)
+	const competitorMatches = getCompetitorMatches(matches, competitorId)
+
+	let justification = null
 	try {
-		const competitorMd = await import(`../competitors/${params.id}.md?raw`)
-		return {
-			competitorId: params.id,
-			markdown: competitorMd.default,
-		}
-	} catch (error) {
-		return { competitorId: params.id, markdown: null }
+		const competitorMd = await import(`../competitors/${competitorId}.md?raw`)
+		const markdown = competitorMd.default
+		// Strip frontmatter from markdown
+		justification = markdown ? markdown.replace(/^---\n[\s\S]*?\n---\n/, '').replace(/^\n+/, '') : null
+	} catch {
+		justification = null
+	}
+
+	return {
+		justification,
+		competitor,
+		rank,
+		competitorMatches,
+		totalMatches,
 	}
 }
 
@@ -37,15 +57,7 @@ const CompetitorMatchesSidebar = ({ matches, totalMatches }) => {
 }
 
 const CompetitorPage = () => {
-	const { competitorId, markdown } = useLoaderData()
-	const { getCompetitor, getCompetitorRank, getCompetitorMatches, totalMatches } = useTournament()
-
-	const competitor = getCompetitor(competitorId)
-	const rank = getCompetitorRank(competitorId)
-	const matches = getCompetitorMatches(competitorId)
-
-	// Strip frontmatter from markdown
-	const markdownContent = markdown ? markdown.replace(/^---\n[\s\S]*?\n---\n/, '').replace(/^\n+/, '') : null
+	const { justification, competitor, rank, competitorMatches, totalMatches } = useLoaderData()
 
 	if (!competitor) {
 		return (
@@ -58,7 +70,7 @@ const CompetitorPage = () => {
 	}
 
 	return (
-		<Page sidebar={<CompetitorMatchesSidebar matches={matches} totalMatches={totalMatches} />}>
+		<Page sidebar={<CompetitorMatchesSidebar matches={competitorMatches} totalMatches={totalMatches} />}>
 			<Panel
 				header={
 					<div className='flex items-center justify-between gap-3'>
@@ -81,9 +93,9 @@ const CompetitorPage = () => {
 						<span>Core_Justification</span>
 					</div>
 				}>
-				{markdownContent ? (
+				{justification ? (
 					<div className='prose prose-invert max-w-none'>
-						<pre className='whitespace-pre-wrap text-sm text-brand-text'>{markdownContent}</pre>
+						<pre className='whitespace-pre-wrap text-sm text-brand-text'>{justification}</pre>
 					</div>
 				) : (
 					<p className='text-sm text-brand-muted italic'>No justification available</p>
