@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 
 const Leaderboard = ({ leaderboard }) => {
 	return (
@@ -28,7 +28,7 @@ const Leaderboard = ({ leaderboard }) => {
 								{index + 1}
 							</td>
 							<td className='text-left'>
-								<Link to={`/competitor/${c.id}`} className='text-md text-brand-text group-hover:text-brand-highlight transition-colors'>
+								<Link href={`/competitor/${c.id}`} className='text-md text-brand-text group-hover:text-brand-highlight transition-colors'>
 									{c.name}
 								</Link>
 							</td>

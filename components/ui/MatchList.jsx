@@ -1,7 +1,8 @@
-import { Link, useNavigate } from 'react-router-dom'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 const MatchList = ({ matches, totalMatches }) => {
-	const navigate = useNavigate()
+	const router = useRouter()
 
 	// Get entropy label
 	const getEntropyLabel = (entropy) => {
@@ -12,7 +13,7 @@ const MatchList = ({ matches, totalMatches }) => {
 
 	const Competitor = ({ competitor, match }) => (
 		<Link
-			to={`/competitor/${competitor.id}`}
+			href={`/competitor/${competitor.id}`}
 			onClick={(e) => e.stopPropagation()}
 			className={`uppercase hover:underline ${match.winnerName === competitor.name ? 'text-green-500' : 'text-red-500'}`}>
 			{competitor.name}
@@ -24,7 +25,7 @@ const MatchList = ({ matches, totalMatches }) => {
 			{matches.map((match, i) => (
 				<div
 					key={match.timestamp + i}
-					onClick={() => navigate(`/match/${match.matchId}`)}
+					onClick={() => router.push(`/match/${match.matchId}`)}
 					className='w-full border-b border-brand-border transition-all hover:bg-brand-surface py-5 px-4 flex justify-between items-center cursor-pointer'>
 					<div className='flex flex-col gap-1'>
 						<div className='flex gap-2'>

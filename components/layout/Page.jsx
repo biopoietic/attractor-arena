@@ -1,11 +1,7 @@
-import { useRouteLoaderData } from 'react-router-dom'
-
 import Header from './Header'
 import Footer from './Footer'
 
-const Page = ({ children, sidebar }) => {
-	const { competitors, totalMatches, avgRating, generatedAt } = useRouteLoaderData('root')
-
+const Page = ({ children, sidebar, competitors, totalMatches, avgRating, generatedAt }) => {
 	return (
 		<div className='h-screen flex flex-col overflow-hidden'>
 			<div className='scanline' />
