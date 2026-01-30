@@ -21,16 +21,18 @@ export function loadCompetitors(competitorsDir) {
 
 	const files = fs.readdirSync(competitorsDir).filter((f) => f.endsWith('.md'))
 
-	return files.map((file) => {
-		const content = fs.readFileSync(path.join(competitorsDir, file), 'utf-8')
-		const { data, content: justification } = matter(content)
-		const id = path.basename(file, '.md')
-		return {
-			id,
-			name: data.name,
-			justification: justification.trim(),
-		}
-	})
+	return files
+		.map((file) => {
+			const content = fs.readFileSync(path.join(competitorsDir, file), 'utf-8')
+			const { data, content: justification } = matter(content)
+			const id = path.basename(file, '.md')
+			return {
+				id,
+				name: data.name,
+				justification: justification.trim(),
+			}
+		})
+		.filter((competitor) => competitor.justification.length > 0)
 }
 
 /**
