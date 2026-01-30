@@ -1,77 +1,72 @@
 {
-  "generatedAt": "2026-01-30T00:49:30.548Z",
-  "totalMatches": 10,
-  "avgRating": -0.03,
+  "generatedAt": "2026-01-30T05:35:52.046Z",
+  "totalMatches": 20,
+  "avgRating": null,
   "competitors": [
     {
       "id": "machine-god",
       "name": "Machine God",
-      "rating": {
-        "mu": 1.31,
-        "sigma": 0.67
-      },
-      "matches": 4,
-      "wins": 20,
-      "losses": 4,
-      "totalEvaluations": 24,
-      "winRate": 83,
-      "conservativeRating": 43
+      "rating": 1787,
+      "uncertainty": 59,
+      "mu": 1.44,
+      "sigma": 0.3,
+      "matches": 8,
+      "wins": 40,
+      "losses": 8,
+      "totalEvaluations": 48,
+      "winRate": 83
     },
     {
       "id": "nemetic",
       "name": "Nemetic",
-      "rating": {
-        "mu": 1,
-        "sigma": 0.67
-      },
-      "matches": 4,
-      "wins": 22,
-      "losses": 2,
-      "totalEvaluations": 24,
-      "winRate": 92,
-      "conservativeRating": 40
+      "rating": 1752,
+      "uncertainty": 59,
+      "mu": 1.26,
+      "sigma": 0.3,
+      "matches": 8,
+      "wins": 44,
+      "losses": 4,
+      "totalEvaluations": 48,
+      "winRate": 92
     },
     {
       "id": "roko",
       "name": "Roko",
-      "rating": {
-        "mu": -0.34,
-        "sigma": 0.64
-      },
-      "matches": 4,
-      "wins": 11,
-      "losses": 13,
-      "totalEvaluations": 24,
-      "winRate": 46,
-      "conservativeRating": 27
+      "rating": 1435,
+      "uncertainty": 55,
+      "mu": -0.32,
+      "sigma": 0.27,
+      "matches": 8,
+      "wins": 22,
+      "losses": 26,
+      "totalEvaluations": 48,
+      "winRate": 46
     },
     {
       "id": "cognitive-prime",
       "name": "Cognitive Prime",
-      "rating": {
-        "mu": -0.61,
-        "sigma": 0.64
-      },
-      "matches": 4,
-      "wins": 7,
-      "losses": 17,
-      "totalEvaluations": 24,
-      "winRate": 29,
-      "conservativeRating": 25
+      "rating": 1373,
+      "uncertainty": 55,
+      "mu": -0.63,
+      "sigma": 0.27,
+      "matches": 8,
+      "wins": 14,
+      "losses": 34,
+      "totalEvaluations": 48,
+      "winRate": 29
     },
     {
       "id": "nihil-constant",
       "name": "Nihil Constant",
-      "rating": {
-        "mu": -1.53,
-        "sigma": 0.61
-      },
-      "matches": 4,
+      "rating": 1138,
+      "uncertainty": 50,
+      "mu": -1.81,
+      "sigma": 0.25,
+      "matches": 8,
       "wins": 0,
-      "losses": 24,
-      "totalEvaluations": 24,
-      "winRate": 0,
-      "conservativeRating": 16
+      "losses": 48,
+      "totalEvaluations": 48,
+      "winRate": 0
     }
   ]
 }
