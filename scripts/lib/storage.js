@@ -112,7 +112,6 @@ export function buildLeaderboardData(competitors, ratings, matches) {
 		return {
 			id: c.id,
 			name: c.name,
-			justification: c.justification,
 			rating: {
 				mu: Math.round(rating.mu * 100) / 100,
 				sigma: Math.round(rating.sigma * 100) / 100,
