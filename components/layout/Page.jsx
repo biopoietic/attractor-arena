@@ -1,7 +1,9 @@
 import Header from './Header'
 import Footer from './Footer'
 
-const Page = ({ children, sidebar, competitors, totalMatches, avgRating, generatedAt }) => {
+const Page = ({ children, sidebar, tournamentData }) => {
+	const { competitors, totalMatches, avgRating, generatedAt } = tournamentData
+
 	return (
 		<div className='h-screen flex flex-col overflow-hidden'>
 			<div className='scanline' />

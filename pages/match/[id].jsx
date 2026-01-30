@@ -122,7 +122,7 @@ const MatchSidebar = ({ matchData }) => {
 const MatchPage = ({ matchData, competitors, totalMatches, avgRating, generatedAt }) => {
 	if (!matchData) {
 		return (
-			<Page competitors={competitors} totalMatches={totalMatches} avgRating={avgRating} generatedAt={generatedAt}>
+			<Page tournamentData={{ competitors, totalMatches, avgRating, generatedAt }}>
 				<div className='flex items-center justify-center py-20'>
 					<p className='text-sm text-brand-muted italic'>Match not found</p>
 				</div>
@@ -137,7 +137,7 @@ const MatchPage = ({ matchData, competitors, totalMatches, avgRating, generatedA
 					{matchData.competitorA.name} vs {matchData.competitorB.name} | Attractor Arena
 				</title>
 			</Head>
-			<Page sidebar={<MatchSidebar matchData={matchData} />} competitors={competitors} totalMatches={totalMatches} avgRating={avgRating} generatedAt={generatedAt}>
+			<Page sidebar={<MatchSidebar matchData={matchData} />} tournamentData={{ competitors, totalMatches, avgRating, generatedAt }}>
 				<Panel header={<MatchHeader />}>
 					{/* Match Title */}
 					<div className='mb-8'>

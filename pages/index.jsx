@@ -52,10 +52,7 @@ const HomePage = ({ competitors, totalMatches, totalEvaluations, avgRating, gene
 			</Head>
 			<Page
 				sidebar={<RecentMatchesSidebar recentMatches={recentMatches} totalMatches={totalMatches} />}
-				competitors={competitors}
-				totalMatches={totalMatches}
-				avgRating={avgRating}
-				generatedAt={generatedAt}>
+				tournamentData={{ competitors, totalMatches, avgRating, generatedAt }}>
 				{/* Hero Section */}
 				<header className='mb-4'>
 					<h1 className='h1 md:text-5xl 2xl:text-6xl'>

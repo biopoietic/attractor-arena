@@ -66,7 +66,7 @@ const CompetitorMatchesSidebar = ({ matches, totalMatches }) => {
 const CompetitorPage = ({ competitor, rank, competitorMatches, justification, totalMatches, competitors, avgRating, generatedAt }) => {
 	if (!competitor) {
 		return (
-			<Page competitors={competitors} totalMatches={totalMatches} avgRating={avgRating} generatedAt={generatedAt}>
+			<Page tournamentData={{ competitors, totalMatches, avgRating, generatedAt }}>
 				<div className='flex items-center justify-center py-20'>
 					<p className='text-sm text-brand-muted italic'>Competitor not found</p>
 				</div>
@@ -81,10 +81,7 @@ const CompetitorPage = ({ competitor, rank, competitorMatches, justification, to
 			</Head>
 			<Page
 				sidebar={<CompetitorMatchesSidebar matches={competitorMatches} totalMatches={totalMatches} />}
-				competitors={competitors}
-				totalMatches={totalMatches}
-				avgRating={avgRating}
-				generatedAt={generatedAt}>
+				tournamentData={{ competitors, totalMatches, avgRating, generatedAt }}>
 				<Panel
 					header={
 						<div className='flex items-center justify-between gap-3'>
