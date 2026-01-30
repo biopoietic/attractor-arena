@@ -424,8 +424,9 @@ async function main() {
 		.sort((a, b) => b.conservativeRating - a.conservativeRating)
 
 	sortedCompetitors.slice(0, 5).forEach((c, i) => {
-		const conservativeRating = (c.rating.mu - 3 * c.rating.sigma).toFixed(1)
-		console.log(`  ${i + 1}. ${c.name} (\u03bc=${c.rating.mu.toFixed(1)}, \u03c3=${c.rating.sigma.toFixed(1)}, CR=${conservativeRating})`)
+		const eloRating = Math.round(1500 + c.rating.mu * 200)
+		const uncertainty = Math.round(c.rating.sigma * 200)
+		console.log(`  ${i + 1}. ${c.name} (Rating: ${eloRating} ±${uncertainty}, ${c.rating.matches} matches)`)
 	})
 
 	console.log('\nTournament run complete!')

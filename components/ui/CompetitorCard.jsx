@@ -29,15 +29,16 @@ const CompetitorCard = ({ competitor, rank }) => {
 				</div>
 
 				<div className='text-right'>
-					<span className='h3'>Rating</span>
-					<span className='text-5xl font-bold text-brand-highlight tabular-nums'>{competitor.conservativeRating}</span>
+					<div className='h3'>ELO</div>
+					<div className='h1 tabular-nums'>{competitor.rating}</div>
+					<div className='h3'>±{competitor.uncertainty}</div>
 				</div>
 			</div>
 
 			<div className='grid grid-cols-4 gap-4'>
 				<StatCard label='Total Evals' value={competitor.totalEvaluations} />
-				<StatCard label='Strength (μ)' value={competitor.rating.mu.toFixed(2)} />
-				<StatCard label='Uncertainty (σ)' value={competitor.rating.sigma.toFixed(2)} />
+				<StatCard label='Strength (μ)' value={competitor.mu.toFixed(2)} />
+				<StatCard label='Sigma (σ)' value={competitor.sigma.toFixed(2)} />
 				<StatCard label='Win Rate'>
 					<div className='flex items-center gap-3'>
 						<div className='text-xl font-semibold text-brand-highlight tabular-nums'>{competitor.winRate}%</div>

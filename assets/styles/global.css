@@ -45,15 +45,26 @@
 		@apply text-xl uppercase font-bold text-brand-highlight tracking-wider mb-3;
 	}
 	.h3 {
-		@apply text-sm uppercase text-brand-muted tracking-widest block mb-2;
+		@apply text-sm uppercase text-brand-muted tracking-widest mb-2;
 	}
 	.h4 {
-		@apply text-xs font-semibold uppercase tracking-wider text-brand-muted block mb-4;
+		@apply text-xs font-semibold uppercase tracking-wider text-brand-muted mb-4;
 	}
 
 	input,
 	textarea {
 		@apply bg-transparent border-none outline-none text-white text-sm;
+	}
+
+	table {
+		@apply w-full border-collapse;
+	}
+	table tbody tr {
+		@apply hover:bg-brand-highlight/5 hover:text-brand-highlight/50;
+	}
+	table th,
+	table td {
+		@apply py-4 px-3;
 	}
 }
 

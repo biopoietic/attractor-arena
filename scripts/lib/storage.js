@@ -104,6 +104,9 @@ export function saveMatchFile(matchesDir, matchId, matchData) {
  * @returns {Object} - Leaderboard structure
  */
 export function buildLeaderboardData(competitors, ratings, matches) {
+	// Rating display constants
+	const RATING_SCALE = 200 // Scaling factor for mu to Elo-like rating (1500 + mu * RATING_SCALE)
+
 	// Build competitor data with ratings
 	const competitorData = competitors.map((c) => {
 		const rating = ratings[c.id] || { mu: 0, sigma: 1.5, matches: 0, wins: 0, losses: 0 }
@@ -112,21 +115,20 @@ export function buildLeaderboardData(competitors, ratings, matches) {
 		return {
 			id: c.id,
 			name: c.name,
-			rating: {
-				mu: Math.round(rating.mu * 100) / 100,
-				sigma: Math.round(rating.sigma * 100) / 100,
-			},
+			rating: Math.round(1500 + rating.mu * RATING_SCALE),
+			uncertainty: Math.round(rating.sigma * RATING_SCALE),
+			mu: Math.round(rating.mu * 100) / 100,
+			sigma: Math.round(rating.sigma * 100) / 100,
 			matches: rating.matches,
 			wins: rating.wins,
 			losses: rating.losses,
 			totalEvaluations,
 			winRate: totalEvaluations > 0 ? Math.round((rating.wins / totalEvaluations) * 100) : 0,
-			conservativeRating: Math.round((rating.mu - 3 * rating.sigma + 5) * 10),
 		}
 	}) // Sort by conservative rating (mu - 3*sigma) descending
 	competitorData.sort((a, b) => {
-		const conservativeA = a.rating.mu - 3 * a.rating.sigma
-		const conservativeB = b.rating.mu - 3 * b.rating.sigma
+		const conservativeA = a.mu - 3 * a.sigma
+		const conservativeB = b.mu - 3 * b.sigma
 		return conservativeB - conservativeA
 	})
 

@@ -54,42 +54,60 @@ const HomePage = () => {
 			{/* Leaderboard */}
 			<Panel
 				header={
-					<div className='h3 m-0 flex items-center gap-2'>
+					<div className='h3 m-0 flex items-center gap-3'>
 						<Database size={14} />
 						<span>Leaderboard</span>
 					</div>
 				}>
-				<div className='grid grid-cols-[auto_1fr_auto_auto_auto_auto_auto] gap-4'>
-					{/* Column Headers */}
-					<div className='contents h4'>
-						<span className='pl-4'>#</span>
-						<span>Name</span>
-						<span>Win_Rate</span>
-						<span className='text-right'>Matches</span>
-						<span className='text-right'>Strength (μ)</span>
-						<span className='text-right'>Uncertainty (σ)</span>
-						<span className='text-right'>Rating</span>
-					</div>
-
-					{/* Leaderboard Rows */}
-					{leaderboard.map((c, index) => (
-						<Link key={c.id} to={`/competitor/${c.id}`} className={`contents group text-brand-muted text-sm`}>
-							<span className={`pl-4 border-l-2 ${index < 3 ? 'border-brand-highlight/50' : 'border-brand-border'} group-hover:border-brand-highlight`}>
-								{index + 1}
-							</span>
-							<span className='text-lg text-left text-brand-text group-hover:text-brand-highlight'>{c.name}</span>
-							<div className='flex items-center gap-2 justify-end'>
-								<span>{c.winRate}%</span>
-								<div className='h-1.5 w-16 bg-brand-surface border border-brand-border overflow-hidden'>
-									<div className='h-full bg-brand-highlight' style={{ width: `${c.winRate}%` }} />
-								</div>
-							</div>
-							<span className='text-right'>{c.matches}</span>
-							<span className='text-right'>{c.rating.mu.toFixed(2)}</span>
-							<span className='text-right'>{c.rating.sigma.toFixed(2)}</span>
-							<span className={`text-right font-bold ${index < 3 ? 'text-brand-highlight' : 'text-brand-muted'}`}>{c.conservativeRating}</span>
-						</Link>
-					))}
+				<div className='overflow-x-auto'>
+					<table className='text-right text-brand-muted'>
+						<thead>
+							<tr className='h4'>
+								<th>#</th>
+								<th className='text-left'>Name</th>
+								<th>Matches</th>
+								<th>Evals</th>
+								<th>Wins</th>
+								<th>Loss</th>
+								<th>Strength (μ)</th>
+								<th>Sigma (σ)</th>
+								<th>Win_Rate</th>
+								<th>ELO</th>
+							</tr>
+						</thead>
+						<tbody>
+							{leaderboard.map((c, index) => (
+								<tr key={c.id} className='text-right group'>
+									<td className='relative'>
+										<div
+											className={`absolute left-0 top-2 bottom-2 w-0.75 ${index < 3 ? 'bg-brand-highlight/50' : 'bg-brand-border'} group-hover:bg-brand-highlight`}
+										/>
+										{index + 1}
+									</td>
+									<td className='text-left'>
+										<Link to={`/competitor/${c.id}`} className='text-md text-brand-text group-hover:text-brand-highlight transition-colors'>
+											{c.name}
+										</Link>
+									</td>
+									<td>{c.matches}</td>
+									<td>{c.totalEvaluations}</td>
+									<td>{c.wins}</td>
+									<td>{c.losses}</td>
+									<td>{c.mu.toFixed(2)}</td>
+									<td>{c.sigma.toFixed(2)}</td>
+									<td>
+										<div className='flex items-center gap-2 justify-end'>
+											<span>{c.winRate}%</span>
+											<div className='h-1.5 w-16 bg-brand-surface border border-brand-border overflow-hidden'>
+												<div className='h-full bg-brand-highlight' style={{ width: `${c.winRate}%` }} />
+											</div>
+										</div>
+									</td>
+									<td className={`font-semibold ${c.rating > 1500 ? 'text-brand-highlight' : ''}`}>{c.rating}</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
 				</div>
 			</Panel>
 		</Page>
