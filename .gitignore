@@ -13,6 +13,11 @@ dist-ssr
 *.local
 .env
 
+# Database
+*.db-shm
+*.db-wal
+drizzle/
+
 # next.js
 /.next/
 /out/

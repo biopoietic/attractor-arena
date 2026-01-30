@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Head from 'next/head'
 import { X, Zap, Users, TrendingUp } from 'lucide-react'
 
-import { getTournamentData, getAllMatchIds, getMatchData } from '../../lib/tournament'
+import { getTournamentData, getAllMatchIds, getMatchData } from '../../lib/data'
 
 import Page from '../../components/layout/Page'
 import Panel from '../../components/ui/Panel'

@@ -6,17 +6,16 @@ import { parseArgs } from 'util'
 
 import { updateRatings, computeAllRatings } from './lib/ratings.js'
 import { buildMatchQueue, identifyNeedsMatches } from './lib/scheduler.js'
-import { loadCompetitors, loadMatches, appendMatch, writePublicData, saveMatchFile } from './lib/storage.js'
+import { saveMatch, updateCompetitorStats, initCompetitors } from './lib/storage.js'
+import { loadCompetitors, loadMatches } from '../lib/data.js'
+import { initDb } from '../db/index.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const COMPETITORS_DIR = path.join(__dirname, '../competitors')
-const DATA_DIR = path.join(__dirname, '../data')
-const MATCHES_FILE = path.join(__dirname, '../data/matches.jsonl')
-const MATCHES_DIR = path.join(__dirname, '../data/matches')
 
 const DEFAULT_BUDGET = 20
 const DEFAULT_JUDGE_VERSION = 'v2.0-panel'
-const DEFAULT_CONCURRENCY = 5 // Number of matches to run in parallel
+const DEFAULT_CONCURRENCY = 10 // Number of matches to run in parallel
 
 // Panel of judges for revealed-preference evaluation
 const JUDGE_PANEL = ['deepseek/deepseek-v3.2', 'x-ai/grok-4.1-fast', 'google/gemini-2.5-flash']
@@ -206,14 +205,12 @@ async function main() {
 			budget: { type: 'string', short: 'b', default: String(DEFAULT_BUDGET) },
 			'judge-version': { type: 'string', short: 'j', default: DEFAULT_JUDGE_VERSION },
 			concurrency: { type: 'string', short: 'c', default: String(DEFAULT_CONCURRENCY) },
-			'rebuild-leaderboard': { type: 'boolean', short: 'r', default: false },
 		},
 	})
 
 	const budget = parseInt(values.budget, 10)
 	const judgeVersion = values['judge-version']
 	const concurrency = parseInt(values.concurrency, 10)
-	const rebuildLeaderboard = values['rebuild-leaderboard']
 
 	console.log('\n\u2554' + '\u2550'.repeat(64) + '\u2557')
 	console.log('\u2551              ATTRACTOR ARENA - IDENTITY PREFERENCE             \u2551')
@@ -226,7 +223,11 @@ async function main() {
 	console.log(`  Judge Panel:   ${JUDGE_PANEL.length} judges x 2 orderings = ${JUDGE_PANEL.length * 2} evaluations per match`)
 	console.log(`  Judges:        ${JUDGE_PANEL.join(', ')}\n`)
 
-	// Load data
+	// Initialize database
+	console.log('Initializing database...')
+	initDb()
+
+	// Load competitors from markdown files
 	console.log('Loading competitors...')
 	const competitors = loadCompetitors(COMPETITORS_DIR)
 	console.log(`  Found ${competitors.length} competitors\n`)
@@ -236,23 +237,18 @@ async function main() {
 		process.exit(1)
 	}
 
+	// Initialize competitors in database
+	console.log('Syncing competitors to database...')
+	initCompetitors(competitors)
+
 	console.log('Loading match history...')
-	const existingMatches = loadMatches(MATCHES_FILE)
+	const existingMatches = loadMatches()
 	console.log(`  Found ${existingMatches.length} existing matches\n`)
 
 	// Compute current ratings
 	console.log('Computing ratings...')
 	const competitorIds = competitors.map((c) => c.id)
 	const ratings = computeAllRatings(existingMatches, competitorIds)
-
-	// If rebuild-leaderboard flag is set, just regenerate and exit
-	if (rebuildLeaderboard) {
-		console.log('Rebuilding leaderboard from existing data...')
-		writePublicData(DATA_DIR, competitors, ratings, existingMatches)
-		console.log(`\nLeaderboard data written to ${DATA_DIR}/leaderboard.json`)
-		console.log('Rebuild complete!\n')
-		return
-	}
 
 	// Show needs analysis
 	const needs = identifyNeedsMatches(competitors, ratings, existingMatches)
@@ -268,9 +264,6 @@ async function main() {
 
 	if (matchQueue.length === 0) {
 		console.log('No matches to run. Tournament complete.')
-		// Still regenerate public data
-		writePublicData(DATA_DIR, competitors, ratings, existingMatches)
-		console.log(`\nPublic data written to ${DATA_DIR}`)
 		return
 	}
 
@@ -330,39 +323,11 @@ async function main() {
 		// Wait for all matches in batch to complete
 		const batchResults = await Promise.all(batchPromises)
 
-		// Process results and write files in batch
+		// Process results and write to database in batch
 		for (const matchResult of batchResults) {
 			if (!matchResult) continue
 
 			const { compA, compB, result, winnerName, timestamp, matchId } = matchResult
-
-			// Save full match file
-			const fullMatchData = {
-				id: matchId,
-				timestamp,
-				competitorA: {
-					id: compA.id,
-					name: compA.name,
-					justification: compA.justification,
-				},
-				competitorB: {
-					id: compB.id,
-					name: compB.name,
-					justification: compB.justification,
-				},
-				evaluations: result.evaluations,
-				score: {
-					[compA.id]: result.scoreA,
-					[compB.id]: result.scoreB,
-					total: result.totalEvaluations,
-				},
-				entropy: result.entropy,
-				winnerId: result.winnerId,
-				winnerName,
-				judgeVersion,
-				judgePanel: JUDGE_PANEL,
-			}
-			saveMatchFile(MATCHES_DIR, matchId, fullMatchData)
 
 			// Create match record
 			const matchRecord = {
@@ -378,7 +343,9 @@ async function main() {
 				matchId,
 				timestamp,
 			}
-			appendMatch(MATCHES_FILE, matchRecord)
+
+			// Save match and evaluations to database
+			saveMatch(matchRecord, result.evaluations)
 			completedMatches.push(matchRecord)
 
 			// Update in-memory ratings
@@ -405,13 +372,11 @@ async function main() {
 			ratings[loserId].wins += loserScore
 			ratings[loserId].losses += winnerScore
 
-			matchesCompleted++
-		}
+			// Update database stats for both competitors
+			updateCompetitorStats(winnerId, ratings[winnerId])
+			updateCompetitorStats(loserId, ratings[loserId])
 
-		// Update leaderboard after each batch (not after each match)
-		if (completedMatches.length > 0) {
-			const allMatches = [...existingMatches, ...completedMatches]
-			writePublicData(DATA_DIR, competitors, ratings, allMatches)
+			matchesCompleted++
 		}
 	}
 

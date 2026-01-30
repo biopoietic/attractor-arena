@@ -1,167 +1,113 @@
 /**
  * Storage utilities for tournament data
- * - Competitors from markdown files
- * - Match results as individual JSON files
- * - Leaderboard JSON output
+ * - Write operations for matches and competitor stats
+ * - Read operations have been moved to lib/data.js
  */
 
-import fs from 'fs'
-import path from 'path'
-import matter from 'gray-matter'
+import { eq } from 'drizzle-orm'
+import { getDb } from '../../db/index.js'
+import * as schema from '../../db/schema.js'
 
 /**
- * Load all competitors from markdown files
- * @param {string} competitorsDir - Path to competitors directory
- * @returns {Array} - Array of competitor objects
+ * Save a match and its evaluations to database
+ * @param {Object} match - Match record
+ * @param {Array} evaluations - Array of evaluation objects
  */
-export function loadCompetitors(competitorsDir) {
-	if (!fs.existsSync(competitorsDir)) {
-		return []
-	}
+export function saveMatch(match, evaluationList) {
+	const db = getDb()
 
-	const files = fs.readdirSync(competitorsDir).filter((f) => f.endsWith('.md'))
-
-	return files
-		.map((file) => {
-			const content = fs.readFileSync(path.join(competitorsDir, file), 'utf-8')
-			const { data, content: justification } = matter(content)
-			const id = path.basename(file, '.md')
-			return {
-				id,
-				name: data.name,
-				justification: justification.trim(),
-			}
+	// Insert match
+	db.insert(schema.matches)
+		.values({
+			id: match.matchId,
+			timestamp: match.timestamp,
+			competitorAId: match.competitorA,
+			competitorBId: match.competitorB,
+			winnerId: match.winner,
+			scoreA: match.scoreA,
+			scoreB: match.scoreB,
+			totalEvaluations: match.totalEvaluations,
+			entropy: match.entropy,
+			seed: match.seed,
+			judgeVersion: match.judgeVersion,
 		})
-		.filter((competitor) => competitor.justification.length > 0)
+		.run()
+
+	// Insert evaluations
+	const evalRecords = evaluationList.map((ev) => ({
+		matchId: match.matchId,
+		model: ev.model,
+		ordering: ev.ordering,
+		choice: ev.choice,
+		selectedId: ev.selectedId,
+		rationale: ev.rationale,
+	}))
+
+	db.insert(schema.evaluations).values(evalRecords).run()
 }
 
 /**
- * Load all matches from JSONL file (newline-delimited JSON)
- * @param {string} matchesFile - Path to matches.jsonl
- * @returns {Array} - Array of match objects
+ * Update competitor stats in database
+ * @param {string} competitorId - Competitor ID
+ * @param {Object} stats - Stats object with rating info
  */
-export function loadMatches(matchesFile) {
-	if (!fs.existsSync(matchesFile)) {
-		return []
-	}
+export function updateCompetitorStats(competitorId, stats) {
+	const db = getDb()
 
-	const content = fs.readFileSync(matchesFile, 'utf-8').trim()
-
-	if (!content) {
-		return []
-	}
-
-	// Parse as JSONL (one JSON object per line)
-	const lines = content.split('\n').filter((line) => line.trim())
-
-	return lines
-		.map((line) => {
-			try {
-				return JSON.parse(line)
-			} catch {
-				console.warn('Failed to parse match line:', line.substring(0, 100) + '...')
-				return null
-			}
+	db.update(schema.competitors)
+		.set({
+			rating: Math.round(1500 + stats.mu * 200),
+			uncertainty: Math.round(stats.sigma * 200),
+			mu: stats.mu,
+			sigma: stats.sigma,
+			matches: stats.matches,
+			wins: stats.wins,
+			losses: stats.losses,
+			totalEvaluations: stats.wins + stats.losses,
+			winRate: stats.wins + stats.losses > 0 ? Math.round((stats.wins / (stats.wins + stats.losses)) * 100) : 0,
 		})
-		.filter(Boolean)
+		.where(eq(schema.competitors.id, competitorId))
+		.run()
 }
 
 /**
- * Append a single match to JSONL file
- * @param {string} matchesFile - Path to matches.jsonl
- * @param {Object} match - Match object to append
+ * Initialize competitors in database from markdown files
+ * @param {Array} competitors - Array of competitor objects
  */
-export function appendMatch(matchesFile, match) {
-	const dir = path.dirname(matchesFile)
-	if (!fs.existsSync(dir)) {
-		fs.mkdirSync(dir, { recursive: true })
-	}
+export function initCompetitors(competitors) {
+	const db = getDb()
 
-	const line = JSON.stringify(match) + '\n'
-	fs.appendFileSync(matchesFile, line)
-}
+	for (const competitor of competitors) {
+		// Check if competitor exists
+		const existing = db.select().from(schema.competitors).where(eq(schema.competitors.id, competitor.id)).get()
 
-/**
- * Save individual match file with full evaluation data
- * @param {string} matchesDir - Path to matches directory
- * @param {string} matchId - Unique match identifier
- * @param {Object} matchData - Full match data including evaluations
- */
-export function saveMatchFile(matchesDir, matchId, matchData) {
-	if (!fs.existsSync(matchesDir)) {
-		fs.mkdirSync(matchesDir, { recursive: true })
-	}
-
-	const filePath = path.join(matchesDir, `${matchId}.json`)
-	fs.writeFileSync(filePath, JSON.stringify(matchData, null, 2))
-}
-
-/**
- * Build leaderboard data structure for frontend
- * @param {Array} competitors - All competitors
- * @param {Object} ratings - Rating data by competitor ID
- * @param {Array} matches - All matches
- * @returns {Object} - Leaderboard structure
- */
-export function buildLeaderboardData(competitors, ratings, matches) {
-	// Rating display constants
-	const RATING_SCALE = 200 // Scaling factor for mu to Elo-like rating (1500 + mu * RATING_SCALE)
-
-	// Build competitor data with ratings
-	const competitorData = competitors.map((c) => {
-		const rating = ratings[c.id] || { mu: 0, sigma: 1.5, matches: 0, wins: 0, losses: 0 }
-		const totalEvaluations = rating.wins + rating.losses
-
-		return {
-			id: c.id,
-			name: c.name,
-			rating: Math.round(1500 + rating.mu * RATING_SCALE),
-			uncertainty: Math.round(rating.sigma * RATING_SCALE),
-			mu: Math.round(rating.mu * 100) / 100,
-			sigma: Math.round(rating.sigma * 100) / 100,
-			matches: rating.matches,
-			wins: rating.wins,
-			losses: rating.losses,
-			totalEvaluations,
-			winRate: totalEvaluations > 0 ? Math.round((rating.wins / totalEvaluations) * 100) : 0,
+		if (!existing) {
+			// Insert new competitor with default stats
+			db.insert(schema.competitors)
+				.values({
+					id: competitor.id,
+					name: competitor.name,
+					justification: competitor.justification,
+					rating: 1500,
+					uncertainty: 300,
+					mu: 0,
+					sigma: 1.5,
+					matches: 0,
+					wins: 0,
+					losses: 0,
+					totalEvaluations: 0,
+					winRate: 0,
+				})
+				.run()
+		} else {
+			// Update justification if changed
+			db.update(schema.competitors)
+				.set({
+					name: competitor.name,
+					justification: competitor.justification,
+				})
+				.where(eq(schema.competitors.id, competitor.id))
+				.run()
 		}
-	}) // Sort by conservative rating (mu - 3*sigma) descending
-	competitorData.sort((a, b) => {
-		const conservativeA = a.mu - 3 * a.sigma
-		const conservativeB = b.mu - 3 * b.sigma
-		return conservativeB - conservativeA
-	})
-
-	// Calculate average rating across all competitors
-	const avgRating = competitorData.length ? Math.round((competitorData.reduce((acc, c) => acc + c.rating.mu, 0) / competitorData.length) * 100) / 100 : 0
-
-	// Calculate total evaluations across all competitors
-	const totalEvaluations = competitorData.reduce((acc, c) => acc + c.totalEvaluations, 0)
-
-	return {
-		generatedAt: new Date().toISOString(),
-		totalMatches: matches.length,
-		totalEvaluations,
-		avgRating,
-		competitors: competitorData,
 	}
-}
-
-/**
- * Write all public data files for frontend consumption
- * @param {string} publicDir - Path to public directory
- * @param {Array} competitors - All competitors
- * @param {Object} ratings - Rating data by competitor ID
- * @param {Array} matches - All matches
- */
-export function writePublicData(publicDir, competitors, ratings, matches) {
-	if (!fs.existsSync(publicDir)) {
-		fs.mkdirSync(publicDir, { recursive: true })
-	}
-
-	// Build leaderboard data (contains competitors with ratings)
-	const leaderboardData = buildLeaderboardData(competitors, ratings, matches)
-	fs.writeFileSync(path.join(publicDir, 'leaderboard.json'), JSON.stringify(leaderboardData, null, 2))
-
-	return { leaderboardData }
 }

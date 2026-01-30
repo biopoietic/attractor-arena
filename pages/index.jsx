@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Head from 'next/head'
 import { User, Database, History } from 'lucide-react'
 
-import { getTournamentData } from '../lib/tournament'
+import { getTournamentData } from '../lib/data'
 
 import Page from '../components/layout/Page'
 import Panel from '../components/ui/Panel'
