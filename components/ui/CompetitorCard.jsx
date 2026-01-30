@@ -7,7 +7,7 @@ const CompetitorCard = ({ competitor, rank }) => {
 			<div className='flex items-start justify-between mb-6'>
 				<div className='text-sm'>
 					<div className='h3 flex items-center gap-3'>
-						<span>Rank #{rank}</span>
+						<span>Global Rank #{rank}</span>
 						<span className='h-4 w-px bg-brand-muted' />
 						<span>{competitor.matches} Matches</span>
 					</div>
@@ -29,12 +29,12 @@ const CompetitorCard = ({ competitor, rank }) => {
 				</div>
 
 				<div className='text-right'>
-					<span className='h3'>Conservative Rating</span>
+					<span className='h3'>Rating</span>
 					<span className='text-5xl font-bold text-brand-highlight tabular-nums'>{competitor.conservativeRating}</span>
 				</div>
 			</div>
 
-			<div className='grid grid-cols-4 gap-4 mb-8'>
+			<div className='grid grid-cols-4 gap-4'>
 				<StatCard label='Total Evals' value={competitor.totalEvaluations} />
 				<StatCard label='Strength (μ)' value={competitor.rating.mu.toFixed(2)} />
 				<StatCard label='Uncertainty (σ)' value={competitor.rating.sigma.toFixed(2)} />
@@ -46,11 +46,6 @@ const CompetitorCard = ({ competitor, rank }) => {
 						</div>
 					</div>
 				</StatCard>
-			</div>
-
-			<div className='border border-brand-border bg-brand-surface p-6 text-sm'>
-				<span className='h3'>Core Justification</span>
-				<p className='leading-relaxed italic border-l-2 border-brand-highlight/50 pl-4'>"{competitor.justification}"</p>
 			</div>
 		</>
 	)

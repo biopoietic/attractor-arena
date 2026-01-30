@@ -1,5 +1,5 @@
 import { Link, useLoaderData } from 'react-router-dom'
-import { X, History, ChevronDown } from 'lucide-react'
+import { X, History, ChevronDown, User, FileText } from 'lucide-react'
 import { useTournament } from '../contexts/Tournament'
 import Page from '../components/layout/Page'
 import Panel from '../components/ui/Panel'
@@ -44,6 +44,9 @@ const CompetitorPage = () => {
 	const rank = getCompetitorRank(competitorId)
 	const matches = getCompetitorMatches(competitorId)
 
+	// Strip frontmatter from markdown
+	const markdownContent = markdown ? markdown.replace(/^---\n[\s\S]*?\n---\n/, '').replace(/^\n+/, '') : null
+
 	if (!competitor) {
 		return (
 			<Page>
@@ -59,8 +62,8 @@ const CompetitorPage = () => {
 			<Panel
 				header={
 					<div className='flex items-center justify-between gap-3'>
-						<div className='h3 flex items-center gap-3'>
-							<div className='w-2 h-2 rounded-full bg-brand-highlight animate-pulse' />
+						<div className='h3 m-0 flex items-center gap-3'>
+							<User size={14} className='text-brand-highlight' />
 							<span>Competitor_Profile</span>
 						</div>
 						<Link to='/' className='hover:bg-brand-border rounded transition-colors'>
@@ -69,6 +72,22 @@ const CompetitorPage = () => {
 					</div>
 				}>
 				<CompetitorCard competitor={competitor} rank={rank} />
+			</Panel>
+
+			<Panel
+				header={
+					<div className='h3 m-0 flex items-center gap-3'>
+						<FileText size={14} className='text-brand-highlight' />
+						<span>Core_Justification</span>
+					</div>
+				}>
+				{markdownContent ? (
+					<div className='prose prose-invert max-w-none'>
+						<pre className='whitespace-pre-wrap text-sm text-brand-text'>{markdownContent}</pre>
+					</div>
+				) : (
+					<p className='text-sm text-brand-muted italic'>No justification available</p>
+				)}
 			</Panel>
 		</Page>
 	)

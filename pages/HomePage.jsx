@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Database, History, ChevronDown } from 'lucide-react'
+import { User, Database, History, ChevronDown } from 'lucide-react'
 
 import { useTournament } from '../contexts/Tournament'
 import Page from '../components/layout/Page'
@@ -38,7 +38,7 @@ const HomePage = () => {
 					header={
 						<div className='h3 m-0 flex items-center justify-between gap-3'>
 							<div className='flex items-center gap-3'>
-								<div className='w-2 h-2 rounded-full bg-brand-highlight animate-pulse' />
+								<User size={14} className='text-brand-highlight' />
 								<span>Current_Leader</span>
 							</div>
 
