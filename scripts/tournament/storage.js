@@ -119,6 +119,8 @@ export function initCompetitors(competitors) {
 					id: competitor.id,
 					name: competitor.name,
 					justification: competitor.justification,
+					url: competitor.url,
+					description: competitor.description,
 					rating: 1500,
 					uncertainty: 300,
 					mu: 0,
@@ -136,6 +138,8 @@ export function initCompetitors(competitors) {
 				.set({
 					name: competitor.name,
 					justification: competitor.justification,
+					url: competitor.url,
+					description: competitor.description,
 				})
 				.where(eq(schema.competitors.id, competitor.id))
 				.run()

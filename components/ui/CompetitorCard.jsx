@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown } from 'lucide-react'
+import { TrendingUp, TrendingDown, ExternalLink } from 'lucide-react'
 import StatCard from './StatCard'
 
 const CompetitorCard = ({ competitor, rank }) => {
@@ -12,8 +12,20 @@ const CompetitorCard = ({ competitor, rank }) => {
 						<span>{competitor.matches} Matches</span>
 					</div>
 
-					<h2 className='h1'>{competitor.name}</h2>
-
+					<h2 className='h1 flex items-center gap-3'>{competitor.name}</h2>
+					{competitor.url && (
+						<h3 className='h2 mb-6 text-sm text-brand-text'>
+							<a
+								href={competitor.url}
+								target='_blank'
+								rel='noopener noreferrer'
+								title={competitor.description || undefined}
+								className='inline-flex items-center gap-1.5'>
+								{competitor.url}
+								<ExternalLink size={14} />
+							</a>
+						</h3>
+					)}
 					<div className='h3 flex items-center gap-4'>
 						<div className='flex items-center gap-2 text-emerald-500'>
 							<TrendingUp size={16} className='' />
