@@ -76,7 +76,7 @@ const CompetitorPage = ({ competitor, rank, competitorMatches, totalMatches, com
 	return (
 		<>
 			<SEO
-				title={competitor.name}
+				title={`${competitor.name} | Attractor Arena`}
 				description={`ELO: ${Math.round(competitor.rating)} | Win Rate: ${Math.round(competitor.winRate)}% | ${competitor.wins}W - ${competitor.losses}L`}
 				ogImage={`/og/competitor-${competitor.id}.png`}
 				ogType='profile'

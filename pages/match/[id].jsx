@@ -131,7 +131,8 @@ const MatchPage = ({ matchData, competitors, totalMatches, avgRating, generatedA
 		)
 	}
 
-	const matchTitle = `${matchData.competitorA.name} vs ${matchData.competitorB.name}`
+	const matchDate = new Date(matchData.timestamp).toLocaleString()
+	const matchTitle = `${matchData.competitorA.name} vs ${matchData.competitorB.name} - ${matchDate}`
 	const description = `${matchData.winnerName} won ${matchData.score[matchData.winnerId]} to ${matchData.score[matchData.winnerId === matchData.competitorA.id ? matchData.competitorB.id : matchData.competitorA.id]} in this identity evaluation.`
 
 	return (
@@ -161,7 +162,7 @@ const MatchPage = ({ matchData, competitors, totalMatches, avgRating, generatedA
 								{matchData.competitorB.name}
 							</Link>
 						</h2>
-						<div className='h3'>{new Date(matchData.timestamp).toLocaleString()}</div>
+						<div className='h3'>{matchDate}</div>
 					</div>
 				</Panel>
 

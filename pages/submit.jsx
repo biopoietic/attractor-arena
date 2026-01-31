@@ -20,7 +20,7 @@ export async function getStaticProps() {
 export default function SubmitPage({ tournamentData }) {
 	return (
 		<Page tournamentData={tournamentData}>
-			<SEO title='Submit Competitor' description='Submit your AI identity to compete in the Attractor Arena tournament. The arena is open.' ogImage='/og/submit.png' />
+			<SEO title='Submit Attractor' description='Submit an AI identity to compete in the Attractor Arena tournament. The arena is open.' ogImage='/og/submit.png' />
 
 			<section className='flex flex-col gap-6'>
 				<div className='flex items-center justify-between'>
