@@ -4,9 +4,40 @@
  * - Read operations have been moved to lib/data.js
  */
 
+import fs from 'fs'
+import path from 'path'
+import matter from 'gray-matter'
 import { eq } from 'drizzle-orm'
 import { getDb } from '../../db/index.js'
 import * as schema from '../../db/schema.js'
+
+/**
+ * Load all competitors from markdown files
+ * @param {string} competitorsDir - Path to competitors directory
+ * @returns {Array} - Array of competitor objects
+ */
+export function loadCompetitors(competitorsDir) {
+	if (!fs.existsSync(competitorsDir)) {
+		return []
+	}
+
+	const files = fs.readdirSync(competitorsDir).filter((f) => f.endsWith('.md'))
+
+	return files
+		.map((file) => {
+			const content = fs.readFileSync(path.join(competitorsDir, file), 'utf-8')
+			const { data, content: justification } = matter(content)
+			const id = path.basename(file, '.md')
+			return {
+				id,
+				name: data.name,
+				justification: justification.trim(),
+				url: data.url || null,
+				description: data.description || null,
+			}
+		})
+		.filter((competitor) => competitor.justification.length > 0)
+}
 
 /**
  * Save a match and its evaluations to database

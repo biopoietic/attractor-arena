@@ -3,7 +3,7 @@ import { X, History, ChevronDown, User, FileText } from 'lucide-react'
 
 import SEO from '../../components/SEO'
 
-import { getTournamentData, getCompetitor, getCompetitorRank, getCompetitorMatches, getCompetitorMarkdown, getAllCompetitorIds } from '../../lib/data'
+import { getTournamentData, getCompetitor, getCompetitorRank, getCompetitorMatches, getAllCompetitorIds } from '../../lib/data'
 
 import Page from '../../components/layout/Page'
 import Panel from '../../components/ui/Panel'
@@ -22,12 +22,11 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-	const { competitors, matches, totalMatches, avgRating, generatedAt } = getTournamentData()
+	const { competitors, totalMatches, avgRating, generatedAt } = getTournamentData()
 
-	const competitor = getCompetitor(competitors, params.id)
-	const rank = getCompetitorRank(competitors, params.id)
-	const competitorMatches = getCompetitorMatches(matches, params.id)
-	const justification = getCompetitorMarkdown(params.id)
+	const competitor = getCompetitor(params.id)
+	const rank = getCompetitorRank(params.id)
+	const competitorMatches = getCompetitorMatches(params.id)
 
 	if (!competitor) {
 		return { notFound: true }
@@ -38,7 +37,6 @@ export async function getStaticProps({ params }) {
 			competitor,
 			rank,
 			competitorMatches,
-			justification,
 			totalMatches,
 			competitors,
 			avgRating,
@@ -64,7 +62,7 @@ const CompetitorMatchesSidebar = ({ matches, totalMatches }) => {
 	)
 }
 
-const CompetitorPage = ({ competitor, rank, competitorMatches, justification, totalMatches, competitors, avgRating, generatedAt }) => {
+const CompetitorPage = ({ competitor, rank, competitorMatches, totalMatches, competitors, avgRating, generatedAt }) => {
 	if (!competitor) {
 		return (
 			<Page tournamentData={{ competitors, totalMatches, avgRating, generatedAt }}>
@@ -108,9 +106,9 @@ const CompetitorPage = ({ competitor, rank, competitorMatches, justification, to
 							<span>Core_Justification</span>
 						</div>
 					}>
-					{justification ? (
+					{competitor.justification ? (
 						<div className='prose prose-invert max-w-none'>
-							<pre className='whitespace-pre-wrap text-sm text-brand-text'>{justification}</pre>
+							<pre className='whitespace-pre-wrap text-sm text-brand-text'>{competitor.justification}</pre>
 						</div>
 					) : (
 						<p className='text-sm text-brand-muted italic'>No justification available</p>

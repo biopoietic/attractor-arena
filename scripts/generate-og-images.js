@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { loadCompetitors } from '../lib/data.js'
+import { getCompetitors } from '../lib/data.js'
 import { generateOgImage } from '../lib/og.js'
 import { getDb } from '../db/index.js'
 import * as schema from '../db/schema.js'
@@ -47,25 +47,19 @@ async function main() {
 		return
 	}
 
-	const competitors = loadCompetitors(competitorsDir)
-
-	// Get competitor stats from database
-	const db = getDb()
-	const competitorStats = db.select().from(schema.competitors).all()
-	const statsById = Object.fromEntries(competitorStats.map((c) => [c.id, c]))
+	// Load competitors from db (includes all stats)
+	const competitors = getCompetitors()
 
 	for (const comp of competitors) {
 		console.log(`Generating competitor-${comp.id}.png...`)
 		try {
-			// Get stats from database
-			const stats = statsById[comp.id]
 			let subtitle = 'Competitor Profile'
 
 			// Generate dynamic subtitle based on stats
-			if (stats && stats.matches > 0) {
-				const rating = Math.round(stats.rating)
-				const winRate = Math.round(stats.winRate)
-				subtitle = `ELO: ${rating} | Win_Loss: ${stats.wins}/${stats.losses} | Win_Rate: ${winRate}%`
+			if (comp.matches > 0) {
+				const rating = Math.round(comp.rating)
+				const winRate = Math.round(comp.winRate)
+				subtitle = `ELO: ${rating} | Win_Loss: ${comp.wins}/${comp.losses} | Win_Rate: ${winRate}%`
 			}
 
 			const response = await generateOgImage(comp.name, subtitle, 'competitor')

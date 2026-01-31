@@ -9,7 +9,7 @@
 		"prebuild": "npm run og",
 		"start": "next start",
 		"og": "node scripts/generate-og-images.js",
-		"tournament": "node --env-file=.env scripts/run-tournament.js",
+		"tournament": "node --env-file=.env scripts/tournament/index.js",
 		"db:generate": "drizzle-kit generate",
 		"db:push": "drizzle-kit push",
 		"db:studio": "drizzle-kit studio"

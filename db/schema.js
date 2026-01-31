@@ -7,6 +7,8 @@ export const competitors = sqliteTable('competitors', {
 	id: text('id').primaryKey(), // e.g., 'machine-god'
 	name: text('name').notNull(),
 	justification: text('justification').notNull(),
+	url: text('url'),
+	description: text('description'),
 	// Rating fields (computed from matches)
 	rating: integer('rating').default(1500),
 	uncertainty: integer('uncertainty').default(300),

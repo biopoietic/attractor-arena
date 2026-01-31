@@ -4,10 +4,10 @@ import { ChatOpenAI } from '@langchain/openai'
 import { HumanMessage, SystemMessage } from '@langchain/core/messages'
 import { parseArgs } from 'util'
 
-import { updateRatings, computeAllRatings } from './lib/ratings.js'
-import { buildMatchQueue, identifyNeedsMatches } from './lib/scheduler.js'
-import { saveMatch, updateCompetitorStats, initCompetitors } from './lib/storage.js'
-import { loadCompetitors, loadMatches } from '../lib/data.js'
+import { updateRatings, computeAllRatings } from './ratings.js'
+import { buildMatchQueue, identifyNeedsMatches } from './scheduler.js'
+import { loadCompetitors, saveMatch, updateCompetitorStats, initCompetitors } from './storage.js'
+import { loadMatches } from '../lib/data.js'
 import { initDb } from '../db/index.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
