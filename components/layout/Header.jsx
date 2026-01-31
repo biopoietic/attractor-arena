@@ -1,3 +1,4 @@
+import { GitPullRequest, Github } from 'lucide-react'
 import Logo from './Logo'
 
 const Header = ({ competitors, totalMatches, avgRating }) => {
@@ -19,6 +20,16 @@ const Header = ({ competitors, totalMatches, avgRating }) => {
 					<span>μ={avgRating}</span>
 				</div>
 			</div>
+
+			<nav className='ml-auto flex items-center gap-12 text-xs h3 m-0 text-brand-muted'>
+				<a href='/submit' className='flex items-center gap-2 hover:text-brand-highlight transition-colors'>
+					<GitPullRequest size={14} />
+					<span>Submit_Identity</span>
+				</a>
+				<a href='https://github.com/biopoietic/attractor-arena' target='_blank' className='hidden sm:flex hover:text-brand-highlight transition-colors'>
+					<Github size={14} />
+				</a>
+			</nav>
 		</header>
 	)
 }
