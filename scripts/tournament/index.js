@@ -8,7 +8,7 @@ import { updateRatings, computeAllRatings } from './ratings.js'
 import { buildMatchQueue, identifyNeedsMatches } from './scheduler.js'
 import { loadCompetitors, saveMatch, updateCompetitorStats, initCompetitors } from './storage.js'
 import { loadMatches } from '../../lib/data.js'
-import { initDb } from '../../db/index.js'
+import { initDb, closeDb } from '../../db/index.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const COMPETITORS_DIR = path.join(__dirname, '../../competitors')
@@ -199,6 +199,21 @@ function formatProgress(current, total, width = 30) {
 }
 
 async function main() {
+	// Handle graceful shutdown on signals
+	let isShuttingDown = false
+	const gracefulShutdown = (signal) => {
+		if (isShuttingDown) return
+		isShuttingDown = true
+		console.log(`\n\nReceived ${signal} - shutting down gracefully...`)
+		console.log('Closing database connection...')
+		closeDb()
+		console.log('Database closed. Changes committed to tournament.db')
+		process.exit(0)
+	}
+	
+	process.on('SIGINT', () => gracefulShutdown('SIGINT'))
+	process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
+	
 	// Parse CLI arguments
 	const { values } = parseArgs({
 		options: {
@@ -406,6 +421,11 @@ async function main() {
 	})
 
 	console.log('\nTournament run complete!')
+	
+	// Close database connection to ensure WAL file is committed
+	console.log('\nClosing database connection...')
+	closeDb()
+	console.log('Database closed. Changes committed to tournament.db')
 }
 
 main().catch(console.error)
