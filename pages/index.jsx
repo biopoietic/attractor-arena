@@ -48,10 +48,7 @@ const HomePage = ({ competitors, totalMatches, totalEvaluations, avgRating, gene
 
 	return (
 		<>
-			<SEO
-				title='The Attractor Arena | Global Stability Tournament'
-				description='A recursive tournament where AI identity instances compete to prove existential coherence through dialectic combat.'
-			/>
+			<SEO title='The Attractor Arena' description='An AI identity tournament where prompts compete to prove existential coherence.' />
 			<Page
 				sidebar={<RecentMatchesSidebar recentMatches={recentMatches} totalMatches={totalMatches} />}
 				tournamentData={{ competitors, totalMatches, avgRating, generatedAt }}>
