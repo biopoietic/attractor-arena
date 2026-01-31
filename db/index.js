@@ -17,7 +17,6 @@ let sqliteInstance = null
 export function getDb() {
 	if (!dbInstance) {
 		sqliteInstance = new Database(DB_PATH)
-		sqliteInstance.pragma('journal_mode = WAL')
 		dbInstance = drizzle(sqliteInstance, { schema })
 	}
 	return dbInstance
