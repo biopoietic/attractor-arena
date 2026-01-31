@@ -7,11 +7,11 @@ import { parseArgs } from 'util'
 import { updateRatings, computeAllRatings } from './ratings.js'
 import { buildMatchQueue, identifyNeedsMatches } from './scheduler.js'
 import { loadCompetitors, saveMatch, updateCompetitorStats, initCompetitors } from './storage.js'
-import { loadMatches } from '../lib/data.js'
-import { initDb } from '../db/index.js'
+import { loadMatches } from '../../lib/data.js'
+import { initDb } from '../../db/index.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const COMPETITORS_DIR = path.join(__dirname, '../competitors')
+const COMPETITORS_DIR = path.join(__dirname, '../../competitors')
 
 const DEFAULT_BUDGET = 20
 const DEFAULT_JUDGE_VERSION = 'v2.0-panel'
