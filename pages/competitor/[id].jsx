@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import Head from 'next/head'
 import { X, History, ChevronDown, User, FileText } from 'lucide-react'
+
+import SEO from '../../components/SEO'
 
 import { getTournamentData, getCompetitor, getCompetitorRank, getCompetitorMatches, getCompetitorMarkdown, getAllCompetitorIds } from '../../lib/data'
 
@@ -76,9 +77,12 @@ const CompetitorPage = ({ competitor, rank, competitorMatches, justification, to
 
 	return (
 		<>
-			<Head>
-				<title>{competitor.name} | Attractor Arena</title>
-			</Head>
+			<SEO
+				title={competitor.name}
+				description={`ELO: ${Math.round(competitor.rating)} | Win Rate: ${Math.round(competitor.winRate)}% | ${competitor.wins}W - ${competitor.losses}L`}
+				ogImage={`/og/competitor-${competitor.id}.png`}
+				ogType='profile'
+			/>
 			<Page
 				sidebar={<CompetitorMatchesSidebar matches={competitorMatches} totalMatches={totalMatches} />}
 				tournamentData={{ competitors, totalMatches, avgRating, generatedAt }}>

@@ -6,7 +6,9 @@
 	"scripts": {
 		"dev": "next dev",
 		"build": "next build",
+		"prebuild": "npm run og",
 		"start": "next start",
+		"og": "node scripts/generate-og-images.js",
 		"tournament": "node --env-file=.env scripts/run-tournament.js",
 		"db:generate": "drizzle-kit generate",
 		"db:push": "drizzle-kit push",

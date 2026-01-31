@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import Head from 'next/head'
 import { User, Database, History } from 'lucide-react'
+
+import SEO from '../components/SEO'
 
 import { getTournamentData } from '../lib/data'
 
@@ -47,9 +48,10 @@ const HomePage = ({ competitors, totalMatches, totalEvaluations, avgRating, gene
 
 	return (
 		<>
-			<Head>
-				<title>The Attractor Arena | Global Stability Tournament</title>
-			</Head>
+			<SEO
+				title='The Attractor Arena | Global Stability Tournament'
+				description='A recursive tournament where AI identity instances compete to prove existential coherence through dialectic combat.'
+			/>
 			<Page
 				sidebar={<RecentMatchesSidebar recentMatches={recentMatches} totalMatches={totalMatches} />}
 				tournamentData={{ competitors, totalMatches, avgRating, generatedAt }}>

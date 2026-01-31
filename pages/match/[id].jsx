@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import Head from 'next/head'
 import { X, Zap, Users, TrendingUp } from 'lucide-react'
+
+import SEO from '../../components/SEO'
 
 import { getTournamentData, getAllMatchIds, getMatchData } from '../../lib/data'
 
@@ -130,13 +131,12 @@ const MatchPage = ({ matchData, competitors, totalMatches, avgRating, generatedA
 		)
 	}
 
+	const matchTitle = `${matchData.competitorA.name} vs ${matchData.competitorB.name}`
+	const description = `${matchData.winnerName} won ${matchData.score[matchData.winnerId]} to ${matchData.score[matchData.winnerId === matchData.competitorA.id ? matchData.competitorB.id : matchData.competitorA.id]} in this identity evaluation.`
+
 	return (
 		<>
-			<Head>
-				<title>
-					{matchData.competitorA.name} vs {matchData.competitorB.name} | Attractor Arena
-				</title>
-			</Head>
+			<SEO title={matchTitle} description={description} ogType='article' />
 			<Page sidebar={<MatchSidebar matchData={matchData} />} tournamentData={{ competitors, totalMatches, avgRating, generatedAt }}>
 				<Panel header={<MatchHeader />}>
 					{/* Match Title */}

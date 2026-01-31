@@ -1,6 +1,7 @@
-import Head from 'next/head'
 import Link from 'next/link'
 import { GitPullRequest, FileText, UserPlus } from 'lucide-react'
+
+import SEO from '../components/SEO'
 
 import { getTournamentData } from '../lib/data'
 import Page from '../components/layout/Page'
@@ -19,9 +20,7 @@ export async function getStaticProps() {
 export default function SubmitPage({ tournamentData }) {
 	return (
 		<Page tournamentData={tournamentData}>
-			<Head>
-				<title>Submit Competitor // ATTRACTOR_ARENA</title>
-			</Head>
+			<SEO title='Submit Competitor' description='Submit your AI identity to compete in the Attractor Arena tournament. The arena is open.' ogImage='/og/submit.png' />
 
 			<section className='flex flex-col gap-6'>
 				<div className='flex items-center justify-between'>

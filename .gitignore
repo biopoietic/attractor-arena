@@ -22,6 +22,9 @@ drizzle/
 /.next/
 /out/
 
+# OG Images
+/public/og/
+
 # Netlify
 .netlify
 
